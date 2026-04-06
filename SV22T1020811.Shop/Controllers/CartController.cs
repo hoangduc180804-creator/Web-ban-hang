@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SV22T1020811.BusinessLayers;
 using SV22T1020811.Models.Sales;
-using SV22T1020811.Shop.AppCodes; // Nhớ dùng đúng namespace AppCodes của Đức
+using SV22T1020811.Shop.AppCodes; 
 
 namespace SV22T1020811.Shop.Controllers
 {
@@ -35,7 +35,7 @@ namespace SV22T1020811.Shop.Controllers
                         ProductName = product.ProductName,
                         Photo = product.Photo,
                         Unit = product.Unit,
-                        SalePrice = product.Price, // Sử dụng Price làm SalePrice
+                        SalePrice = product.Price, 
                         Quantity = quantity
                     });
                 }

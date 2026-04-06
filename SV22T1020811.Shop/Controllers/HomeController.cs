@@ -10,7 +10,7 @@ namespace SV22T1020811.Shop.Controllers
     {
         public async Task<IActionResult> Index(ProductViewModel model)
         {
-            // 1. C?u hình s? l??ng hi?n th? s?n ph?m trên m?t trang
+            // 1. C?u hình s? l??ng s?n ph?m trên m?t trang
             int pageSize = 9;
 
             // 2. Thi?t l?p các tham s? tìm ki?m
@@ -35,7 +35,7 @@ namespace SV22T1020811.Shop.Controllers
             // 4. L?Y DANH SÁCH DANH M?C CHO SIDEBAR
             ViewBag.Categories = await ProductDataService.ListCategoriesAsync();
 
-            // 5. Gán l?i k?t qu? vào model ?? hi?n th? ? View
+            // 5. Gán l?i k?t qu? vào model hi?nx th? View
             model.Page = input.Page;
             model.PageSize = pageSize;
             model.DataItems = result.DataItems;
