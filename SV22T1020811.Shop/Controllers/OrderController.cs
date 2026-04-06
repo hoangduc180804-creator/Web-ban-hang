@@ -19,7 +19,7 @@ namespace SV22T1020811.Shop.Controllers
             var cidClaim = User.FindFirst("CustomerID")?.Value;
             if (string.IsNullOrEmpty(cidClaim) || cidClaim == "0")
             {
-                return RedirectToAction("Logout", "Account"); // Hoặc trang Login
+                return RedirectToAction("Logout", "Account"); 
             }
 
             int customerId = int.Parse(cidClaim);
@@ -28,7 +28,7 @@ namespace SV22T1020811.Shop.Controllers
             {
                 Page = page,
                 PageSize = 5,
-                SearchValue = searchValue ?? "", // Đảm bảo không bị null
+                SearchValue = searchValue ?? "", 
                 CustomerID = customerId,
                 Status = 0
             };
