@@ -1,0 +1,36 @@
+﻿@{
+    // Lấy tên Action hiện tại để check Active
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<div class="bg-white rounded-[32px] border border-slate-100 shadow-sm p-4 space-y-2">
+    <div class="px-4 py-3 mb-2 text-center border-b border-slate-50">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-full signature-gradient flex items-center justify-center text-white text-xl font-black shadow-lg border-4 border-white">
+            @User.Identity.Name?.Substring(0, 1).ToUpper()
+        </div>
+        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Xin chào!</p>
+        <p class="text-sm font-black text-[#00497d] truncate">@User.Identity.Name</p>
+    </div>
+
+    <a href="~/Account/Profile" class="flex items-center gap-3 px-4 py-4 rounded-2xl transition-all @(currentAction == "Profile" ? "bg-[#00497d] text-white shadow-xl shadow-blue-100" : "hover:bg-slate-50 text-slate-600")">
+        <span class="material-symbols-outlined text-[20px]">person</span>
+        <span class="text-sm font-bold">Thông tin cá nhân</span>
+    </a>
+
+    <a href="~/Order/History" class="flex items-center gap-3 px-4 py-4 rounded-2xl transition-all @(currentAction == "History" ? "bg-[#00497d] text-white shadow-xl shadow-blue-100" : "hover:bg-slate-50 text-slate-600")">
+        <span class="material-symbols-outlined text-[20px]">package_2</span>
+        <span class="text-sm font-bold">Lịch sử đơn hàng</span>
+    </a>
+
+    <a href="~/Account/ChangePassword" class="flex items-center gap-3 px-4 py-4 rounded-2xl transition-all @(currentAction == "ChangePassword" ? "bg-[#00497d] text-white shadow-xl shadow-blue-100" : "hover:bg-slate-50 text-slate-600")">
+        <span class="material-symbols-outlined text-[20px]">lock</span>
+        <span class="text-sm font-bold">Đổi mật khẩu</span>
+    </a>
+
+    <div class="pt-4 mt-2 border-t border-slate-50">
+        <a href="~/Account/Logout" class="flex items-center gap-3 px-4 py-4 rounded-2xl hover:bg-red-50 text-red-500 transition-all">
+            <span class="material-symbols-outlined text-[20px]">logout</span>
+            <span class="text-sm font-bold">Đăng xuất</span>
+        </a>
+    </div>
+</div>

@@ -1,0 +1,132 @@
+﻿@model SV22T1020811.Models.HR.Employee
+@{
+}
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+    <a href="~/Employee" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-badge me-2"></i>
+                    @ViewBag.Title
+                </h5>
+            </div>
+
+            <div class="card-body">
+                @* Lưu ý: Action gửi về Account/Save, thêm enctype để upload ảnh *@
+                <form id="formEdit" action="~/Employee/Save" method="post" enctype="multipart/form-data">
+
+                    @* 1. ID ẩn để biết là Sửa hay Thêm mới *@
+                    <input type="hidden" name="EmployeeID" value="@Model.EmployeeID" />
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Họ và tên</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="FullName" value="@Model.FullName"
+                                   class="form-control"
+                                   placeholder="Nhập họ và tên" autofocus required />
+                        </div>
+                        <label class="col-sm-2 col-form-label text-end">Ngày sinh</label>
+                        <div class="col-sm-2">
+                            <input type="text" name="birthDateInput"
+                                   value="@(Model.BirthDate.HasValue? Model.BirthDate.Value.ToString("dd/MM/yyyy") : "")"
+                                   class="form-control date-picker" placeholder="dd/mm/yyyy" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Địa chỉ</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" name="Address"
+                                      rows="3"
+                                      placeholder="Nhập địa chỉ">@Model.Address</textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Điện thoại</label>
+                        <div class="col-sm-2">
+                            <input type="tel" name="Phone" value="@Model.Phone"
+                                   class="form-control"
+                                   placeholder="Nhập số điện thoại" />
+                        </div>
+                        <label class="col-sm-1 col-form-label text-end">Email</label>
+                        <div class="col-sm-6">
+                            <input type="email" name="Email" value="@Model.Email"
+                                   class="form-control"
+                                   placeholder="Nhập email" required />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Ảnh</label>
+                        <div class="col-sm-9">
+                            @* Tên name="uploadPhoto" khớp với tham số trong Controller *@
+                            <input type="file" name="uploadPhoto"
+                                   class="form-control"
+                                   accept="image/*"
+                                   onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0])" />
+
+                            @* Lưu lại tên ảnh cũ nếu không chọn ảnh mới *@
+                            <input type="hidden" name="Photo" value="@Model.Photo" />
+
+                            <div class="mt-2">
+                                <img id="imgPreview"
+                                     src="~/images/employees/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)"
+                                     class="img-thumbnail"
+                                     style="max-height: 150px;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Trạng thái</label>
+                        <div class="col-sm-9">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input"
+                                       type="checkbox" name="IsWorking" value="true"
+                                       id="IsWorking" @(Model.IsWorking == true ? "checked" : "") />
+
+                                @* Mẹo: Thêm dòng hidden này để nếu không tích thì vẫn gửi giá trị false về DB *@
+                                <input type="hidden" name="IsWorking" value="false" />
+
+                                <label class="form-check-label" for="IsWorking">
+                                    Đang làm việc
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Hiển thị lỗi nếu có *@
+                    <div class="text-danger">
+                        @Html.ValidationSummary()
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hàm preview ảnh đơn giản bằng JavaScript
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imgPreview').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

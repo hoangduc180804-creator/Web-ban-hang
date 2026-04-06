@@ -1,0 +1,86 @@
+﻿@model SV22T1020811.Models.Common.PagedResult<SV22T1020811.Models.Catalog.Category>
+@{
+    ViewBag.Title = "Quản lý Loại hàng";
+}
+@section PageToolBar {
+    <a href="~/Category/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Bổ sung
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        @* Form tìm kiếm gửi dữ liệu về Action Index *@
+        <form id="formSearch" action="~/Category" method="get">
+            <div class="input-group">
+                <input type="text"
+                       name="searchValue"
+                       class="form-control"
+                       placeholder="Tên loại hàng..."
+                       value="@ViewBag.SearchValue"
+                       autofocus />
+                <button type="submit" class="btn btn-info d-flex align-items-center">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>@Model.RowCount</strong> loại hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Tên loại hàng</th>
+                    <th>Mô tả</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DataItems)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.CategoryName</td>
+                        <td>@item.Description</td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Category/Edit/@item.CategoryID" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Category/Delete/@item.CategoryID" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (Model.RowCount == 0)
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-italic text-muted">
+                            Không tìm thấy loại hàng nào phù hợp.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        @if (Model.PageCount > 1)
+        {
+            <ul class="pagination justify-content-center mb-0">
+                @for (int p = 1; p <= Model.PageCount; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" href="~/Category?page=@p&searchValue=@ViewBag.SearchValue">@p</a>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>

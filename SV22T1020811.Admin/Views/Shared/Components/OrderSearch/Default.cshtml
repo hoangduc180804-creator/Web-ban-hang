@@ -1,0 +1,57 @@
+﻿<div class="mb-2 text-muted">
+    Danh sách này có <strong>12</strong> đơn hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Ngày đặt hàng</th>
+                    <th>Tên khách hàng</th>
+                    <th>Điện thoại</th>
+                    <th>Ngày duyệt</th>
+                    <th>Nhân viên xử lý</th>
+                    <th class="text-end">Tổng tiền</th>
+                    <th class="text-center" style="width:140px;">Trạng thái</th>
+                    <th class="text-center" style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 1; i <= 10; i++)
+                {
+                    <tr>
+                        <td>10/10/2025</td>
+                        <td>Nguyễn Văn A</td>
+                        <td>0912345678</td>
+                        <td>11/10/2025</td>
+                        <td>Trần Thị B</td>
+                        <td class="text-end">1,250,000</td>
+                        <td class="text-center">
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Order/Detail/123" class="btn btn-sm btn-primary">
+                                <i class="bi bi-receipt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <ul class="pagination justify-content-center mb-0">
+            @for (int p = 1; p <= 10; p++)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="javascript:;"
+                       onclick="paginationSearch(event, document.getElementById('formSearch'), @p)">
+                        @p
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

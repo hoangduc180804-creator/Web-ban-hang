@@ -1,0 +1,122 @@
+﻿<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+        <a href="#" class="brand-link">
+            <img src="~/lib/adminlte/assets/img/AdminLTELogo.png" alt="Logo" class="brand-image opacity-75 shadow" />
+            <span class="brand-text fw-light">@ApplicationContext.AppName</span>
+        </a>
+    </div>
+    <div class="sidebar-wrapper">
+        <nav class="mt-2">
+            <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation"
+                aria-label="Main navigation" data-accordion="false" id="navigation">
+
+                <li class="nav-item">
+                    <a href="~/" class="nav-link">
+                        <i class="nav-icon bi bi-speedometer2"></i>
+                        <p>Trang chủ</p>
+                    </a>
+                </li>
+
+                @* --- KHỐI QUẢN LÝ DỮ LIỆU --- *@
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-archive"></i>
+                        <p>
+                            Quản lý dữ liệu
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @* Chỉ Admin mới thấy Nhà cung cấp *@
+                        @if (User.IsInRole("admin"))
+                        {
+                            <li class="nav-item">
+                                <a href="~/Supplier" class="nav-link">
+                                    <i class="nav-icon bi bi-truck"></i>
+                                    <p>Nhà cung cấp</p>
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a href="~/Customer" class="nav-link">
+                                <i class="nav-icon bi bi-people"></i>
+                                <p>Khách hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Shipper" class="nav-link">
+                                <i class="nav-icon bi bi-bicycle"></i>
+                                <p>Người giao hàng</p>
+                            </a>
+                        </li>
+
+                        @* Chỉ Admin mới thấy Nhân viên *@
+                        @if (User.IsInRole("admin"))
+                        {
+                            <li class="nav-item">
+                                <a href="~/Employee" class="nav-link">
+                                    <i class="nav-icon bi bi-people-fill"></i>
+                                    <p>Nhân viên</p>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+
+                @* --- KHỐI QUẢN LÝ HÀNG HÓA (CHỈ ADMIN THẤY) --- *@
+                @if (User.IsInRole("admin"))
+                {
+                    <li class="nav-item menu-open">
+                        <a href="#" class="nav-link active">
+                            <i class="nav-icon bi bi-archive"></i>
+                            <p>
+                                Quản lý hàng hóa
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="~/Category" class="nav-link">
+                                    <i class="nav-icon bi bi-collection"></i>
+                                    <p>Loại hàng</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="~/Product" class="nav-link">
+                                    <i class="nav-icon bi bi-boxes"></i>
+                                    <p>Mặt hàng</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+                @* --- KHỐI QUẢN LÝ BÁN HÀNG (CẢ 2 ĐỀU THẤY) --- *@
+                <li class="nav-item menu-open">
+                    <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-cash-stack"></i>
+                        <p>
+                            Quản lý bán hàng
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Order/Create" class="nav-link">
+                                <i class="nav-icon bi bi-cart-plus"></i>
+                                <p>Lập đơn hàng</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Order" class="nav-link">
+                                <i class="nav-icon bi bi-receipt"></i>
+                                <p>Quản lý đơn hàng</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>

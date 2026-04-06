@@ -1,0 +1,73 @@
+﻿@model SV22T1020811.Models.HR.Employee
+@{
+    ViewBag.Title = "Xóa nhân viên";
+}
+
+@section PageToolBar {
+    <form id="formDelete" method="post" action="~/Employee/Delete/@Model.EmployeeID">
+        @* Thêm Token bảo mật để tránh lỗi 400 *@
+        @Html.AntiForgeryToken()
+
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Xóa nhân viên
+        </button>
+        <a href="~/Employee" class="btn btn-secondary ms-1">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </form>
+}
+
+<div class="card card-danger card-outline">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="bi bi-person-x"></i> Xác nhận xóa nhân viên
+        </h3>
+    </div>
+
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            Bạn có chắc chắn muốn xóa nhân viên này không? <strong>Hành động này không thể hoàn tác!</strong>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2 text-start">
+                <img src="~/images/employees/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)"
+                     class="img-thumbnail mb-2"
+                     style="width: 100%;"
+                     alt="Ảnh nhân viên" />
+            </div>
+
+            <div class="col-md-10">
+                <dl class="row">
+                    <dt class="col-sm-3">Họ và tên:</dt>
+                    <dd class="col-sm-9 text-primary fw-bold">@Model.FullName</dd>
+
+                    <dt class="col-sm-3">Ngày sinh:</dt>
+                    <dd class="col-sm-9">@(Model.BirthDate.HasValue? Model.BirthDate.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật")</dd>
+
+                    <dt class="col-sm-3">Điện thoại:</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Phone) ? "N/A" : Model.Phone)</dd>
+
+                    <dt class="col-sm-3">Email:</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+
+                    <dt class="col-sm-3">Địa chỉ:</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Address) ? "N/A" : Model.Address)</dd>
+
+                    <dt class="col-sm-3">Trạng thái:</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.IsWorking == true)
+                        {
+                            <span class="badge bg-success">Đang làm việc</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Đã nghỉ việc</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

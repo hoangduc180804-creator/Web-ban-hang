@@ -1,0 +1,101 @@
+﻿@using SV22T1020811.Models.Sales
+@model SV22T1020811.Models.Common.PagedResult<OrderViewInfo>
+@{
+    Layout = null;
+}
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>@Model.RowCount</strong> đơn hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0 align-middle">
+            <thead class="table-secondary text-nowrap">
+                <tr>
+                    <th>Ngày đặt hàng</th>
+                    <th>Tên khách hàng</th>
+                    <th>Điện thoại</th>
+                    <th>Ngày duyệt</th>
+                    <th>Nhân viên xử lý</th>
+                    <th class="text-end">Tổng tiền</th>
+                    <th class="text-center" style="width:160px;">Trạng thái</th>
+                    <th class="text-center" style="width:40px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DataItems)
+                {
+                    <tr>
+                        <td>@item.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.CustomerName</td>
+                        <td>@item.CustomerPhone</td>
+                        <td>@(item.AcceptTime?.ToString("dd/MM/yyyy") ?? "")</td>
+                        <td>@item.EmployeeName</td>
+                        <td class="text-end fw-bold text-danger">@item.SumOrderTotal.ToString("N0")</td>
+                        <td class="text-center">
+                            @{
+                                // Xác định màu sắc Badge dựa trên Enum
+                                string badgeClass = item.Status switch
+                                {
+                                    OrderStatusEnum.New => "bg-warning text-dark",
+                                    OrderStatusEnum.Accepted => "bg-primary",
+                                    OrderStatusEnum.Shipping => "bg-info",
+                                    OrderStatusEnum.Completed => "bg-success",
+                                    OrderStatusEnum.Cancelled => "bg-danger",
+                                    OrderStatusEnum.Rejected => "bg-secondary",
+                                    _ => "bg-dark"
+                                };
+                            }
+                            @* Sử dụng Extension Method GetDescription() của bạn ở đây *@
+                            <span class="badge @badgeClass">@item.Status.GetDescription()</span>
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Order/Detail/@item.OrderID" class="btn btn-sm btn-primary">
+                                <i class="bi bi-receipt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @* PHẦN PHÂN TRANG TỐI ƯU (CHỐNG TRÀN) *@
+    @if (Model.PageCount > 1)
+    {
+        <div class="card-footer text-center">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                    <a class="page-link" href="javascript:;" onclick="paginationSearch(event, document.getElementById('formSearch'), 1)">«</a>
+                </li>
+
+                @{
+                    int delta = 2;
+                    int start = Math.Max(1, Model.Page - delta);
+                    int end = Math.Min(Model.PageCount, Model.Page + delta);
+                }
+
+                @if (start > 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+
+                @for (int p = start; p <= end; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" href="javascript:;" onclick="paginationSearch(event, document.getElementById('formSearch'), @p)">@p</a>
+                    </li>
+                }
+
+                @if (end < Model.PageCount)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+
+                <li class="page-item @(Model.Page == Model.PageCount ? "disabled" : "")">
+                    <a class="page-link" href="javascript:;" onclick="paginationSearch(event, document.getElementById('formSearch'), @Model.PageCount)">»</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>

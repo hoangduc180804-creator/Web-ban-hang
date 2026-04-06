@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>@ViewData["Title"] - DUC Shop</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    <style>
+        .signature-gradient {
+            background: linear-gradient(135deg, #00497d 0%, #0061a4 100%);
+        }
+
+        .glass-nav {
+            background: rgba(249, 249, 253, 0.9);
+            backdrop-filter: blur(12px);
+        }
+
+        .font-headline {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Fix dứt điểm lỗi tràn ngang */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="bg-[#f9f9fd] text-[#1a1c1f] antialiased">
+    <partial name="_Header" />
+
+    <main class="pt-24 min-h-screen">
+        @RenderBody()
+    </main>
+
+    <partial name="_Footer" />
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

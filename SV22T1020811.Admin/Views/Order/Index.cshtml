@@ -1,0 +1,59 @@
+﻿@model SV22T1020811.Models.Sales.OrderSearchInput
+@{
+    ViewBag.Title = "Quản lý Đơn hàng";
+}
+
+@section PageToolBar {
+    <a href="~/Order/Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Lập đơn mới
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        @* Quan trọng: data-target phải khớp với ID div bên dưới *@
+        <form id="formSearch" action="~/Order/Search" method="get" data-target="searchResult"
+              onsubmit="paginationSearch(event, this, 1)">
+
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="Status" class="form-select">
+                        <option value="0">-- Tất cả --</option>
+                        <option value="1">Đơn hàng mới</option>
+                        <option value="2">Đã duyệt</option>
+                        <option value="3">Đang giao</option>
+                        <option value="4">Hoàn tất</option>
+                        <option value="-1">Bị hủy</option>
+                        <option value="-2">Bị từ chối</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Thời gian</label>
+                    <div class="input-group">
+                        <input type="date" name="DateFrom" class="form-control" value="@(Model.DateFrom?.ToString("yyyy-MM-dd"))" />
+                        <input type="date" name="DateTo" class="form-control" value="@(Model.DateTo?.ToString("yyyy-MM-dd"))" />
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Tìm kiếm</label>
+                    <div class="input-group">
+                        <input type="text" name="SearchValue" class="form-control" value="@Model.SearchValue" placeholder="Tên khách hàng, nhân viên..." />
+                        <button type="submit" class="btn btn-info"><i class="bi bi-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="searchResult"></div>
+
+@section Scripts {
+    <script>
+        // Gọi tìm kiếm lần đầu khi trang vừa load xong
+        document.addEventListener("DOMContentLoaded", function () {
+            paginationSearch(null, document.getElementById("formSearch"), @Model.Page);
+        });
+    </script>
+}

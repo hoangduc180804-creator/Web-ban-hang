@@ -1,0 +1,235 @@
+﻿@model SV22T1020811.Shop.Models.ProductViewModel
+@{
+    ViewData["Title"] = "Trang chủ - DUC Shop";
+}
+
+<section class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="relative rounded-3xl overflow-hidden min-h-[300px] md:min-h-[450px] flex items-center p-8 md:p-16 bg-[#ededf1] shadow-sm">
+
+        <div class="z-20 max-w-lg">
+            <span class="inline-block bg-[#6b5778] text-white px-4 py-1 rounded-full text-[10px] font-bold mb-6 uppercase tracking-widest animate-bounce">Bộ sưu tập 2026</span>
+            <h1 class="text-3xl md:text-6xl font-headline font-extrabold text-[#1a1c1f] leading-tight mb-6">Mua sắm thông minh cùng DUC.Shop</h1>
+            <p class="text-sm md:text-lg text-slate-600 mb-8 leading-relaxed">Nơi hội tụ những sản phẩm công nghệ và phong cách sống hiện đại nhất dành cho người dùng.</p>
+            <button class="signature-gradient text-white font-bold px-8 py-4 rounded-full shadow-lg active:scale-95 transition-all">Xem ngay</button>
+        </div>
+
+        <div id="hero-slideshow" class="absolute right-0 top-0 w-full md:w-2/3 h-full opacity-30 md:opacity-100 z-10">
+            <img src="~/images/BMW 7 Series.jpg" class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-100" />
+            <img src="~/images/Mercedes-Benz S-Class.jpg" class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" />
+            <img src="~/images/Porsche Taycan.jpg" class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" />
+            <img src="~/images/Rolls-Royce Phantom.jpg" class="slide-img absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0" />
+            <div class="absolute inset-0 bg-gradient-to-r from-[#ededf1] via-[#ededf1]/50 to-transparent"></div>
+        </div>
+    </div>
+</section>
+
+<div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-20 mt-10">
+    <div class="flex flex-col lg:flex-row gap-10">
+
+        <aside class="w-full lg:w-72 flex-shrink-0 space-y-6">
+            <form id="searchForm" action="~/Home/Index" method="get" class="space-y-6">
+                <input type="hidden" name="sort" value="@ViewBag.CurrentSort" />
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 block">Tìm kiếm</label>
+                    <div class="relative">
+                        <input name="SearchValue" value="@Model.SearchValue"
+                               class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#00497d]"
+                               placeholder="Tìm sản phẩm..." type="text" />
+                        <button type="submit" class="material-symbols-outlined absolute right-3 top-3 text-slate-400">search</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <button type="button" onclick="toggleCategory()"
+                            class="w-full flex items-center justify-between p-6 text-[#00497d] hover:bg-slate-50 transition-all focus:outline-none">
+                        <h3 class="font-headline font-bold text-lg text-[#00497d]">Danh mục</h3>
+                        <span id="cate-arrow" class="material-symbols-outlined transition-transform duration-300">
+                            keyboard_arrow_down
+                        </span>
+                    </button>
+
+                    <div id="category-list" class="hidden border-t border-slate-50">
+                        <ul class="p-4 space-y-1 text-sm font-medium">
+                            <li>
+                                <a href="?CategoryID=0&SearchValue=@Model.SearchValue&sort=@ViewBag.CurrentSort"
+                                   class="flex items-center justify-between p-3 rounded-xl transition-all @(Model.CategoryID == 0 ? "bg-[#00497d] text-white" : "hover:bg-slate-50 text-slate-600")">
+                                    <span>Tất cả</span>
+                                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                                </a>
+                            </li>
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var c in ViewBag.Categories)
+                                {
+                                    <li>
+                                        <a href="?CategoryID=@c.CategoryID&SearchValue=@Model.SearchValue&sort=@ViewBag.CurrentSort"
+                                           class="flex items-center justify-between p-3 rounded-xl transition-all @(Model.CategoryID == c.CategoryID ? "bg-[#00497d] text-white" : "hover:bg-slate-50 text-slate-600")">
+                                            <span class="truncate pr-2">@c.CategoryName</span>
+                                            <span class="material-symbols-outlined text-xs">chevron_right</span>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </form>
+        </aside>
+
+        <div class="flex-grow min-w-0">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+                <h2 class="text-xl md:text-2xl font-headline font-bold text-slate-800">
+                    Sản phẩm nổi bật <span class="text-slate-400 font-normal text-base">(@Model.RowCount)</span>
+                </h2>
+                <div class="flex items-center gap-2 text-sm font-bold text-slate-500">
+                    <span>Sắp xếp:</span>
+                    <select onchange="changeSort(this.value)"
+                            class="bg-transparent border-none focus:ring-0 text-[#00497d] cursor-pointer font-bold">
+                        <option value="newest" selected="@(ViewBag.CurrentSort == "newest")">Mới nhất</option>
+                        <option value="price-asc" selected="@(ViewBag.CurrentSort == "price-asc")">Giá tăng dần</option>
+                        <option value="price-desc" selected="@(ViewBag.CurrentSort == "price-desc")">Giá giảm dần</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var item in Model.DataItems)
+                {
+                    <div class="group bg-white rounded-2xl overflow-hidden flex flex-col shadow-sm border border-slate-50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <a href="~/Product/Detail/@item.ProductID" class="relative aspect-[4/3] overflow-hidden block bg-slate-100">
+                            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="@(string.IsNullOrEmpty(item.Photo) ? "/images/products/no-photo.png" : "/images/products/" + item.Photo)"
+                                 onerror="this.src='/images/products/no-photo.png';"
+                                 alt="@item.ProductName" />
+
+                            @if (item.Price < 1000000)
+                            {
+                                <div class="absolute top-4 left-4 bg-[#00497d] text-white px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-sm">
+                                    Giá tốt
+                                </div>
+                            }
+                        </a>
+
+                        <div class="p-6 flex flex-col flex-grow">
+                            <a href="~/Product/Detail/@item.ProductID" class="hover:text-[#00497d] transition-colors">
+                                <h3 class="font-headline font-bold text-slate-800 mb-1 truncate text-sm">@item.ProductName</h3>
+                            </a>
+                            <p class="text-[11px] text-slate-400 mb-4 line-clamp-1">@item.ProductDescription</p>
+                            <div class="mt-auto flex items-center justify-between">
+                                <span class="font-headline font-extrabold text-lg text-[#00497d]">@item.Price.ToString("N0")đ</span>
+
+                                <form action="~/Cart/AddToCart" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productID" value="@item.ProductID" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="w-10 h-10 rounded-xl bg-slate-50 text-[#00497d] hover:bg-[#00497d] hover:text-white flex items-center justify-center transition-colors">
+                                        <span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.PageCount > 1)
+            {
+                <div class="mt-12 flex justify-center items-center gap-2">
+                    @if (Model.Page > 1)
+                    {
+                        <a href="?page=1&SearchValue=@Model.SearchValue&CategoryID=@Model.CategoryID&sort=@ViewBag.CurrentSort"
+                           class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 hover:border-[#00497d] transition-all">
+                            <span class="material-symbols-outlined text-sm">first_page</span>
+                        </a>
+                    }
+
+                    @{
+                        int startPage = Math.Max(1, Model.Page - 2);
+                        int endPage = Math.Min(Model.PageCount, Model.Page + 2);
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        if (i == Model.Page)
+                        {
+                            <span class="w-10 h-10 flex items-center justify-center rounded-xl signature-gradient text-white font-bold shadow-md">
+                                @i
+                            </span>
+                        }
+                        else
+                        {
+                            <a href="?page=@i&SearchValue=@Model.SearchValue&CategoryID=@Model.CategoryID&sort=@ViewBag.CurrentSort"
+                               class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 hover:border-[#00497d] hover:text-[#00497d] transition-all font-medium">
+                                @i
+                            </a>
+                        }
+                    }
+
+                    @if (Model.Page < Model.PageCount)
+                    {
+                        <a href="?page=@Model.PageCount&SearchValue=@Model.SearchValue&CategoryID=@Model.CategoryID&sort=@ViewBag.CurrentSort"
+                           class="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-slate-500 border border-slate-200 hover:border-[#00497d] transition-all">
+                            <span class="material-symbols-outlined text-sm">last_page</span>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Xử lý Sắp xếp sản phẩm
+        function changeSort(sortValue) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', sortValue);
+            url.searchParams.set('page', '1'); // Reset về trang 1 khi đổi tiêu chí lọc
+            window.location.href = url.toString();
+        }
+
+        // Toggle Sidebar Category
+        function toggleCategory() {
+            const list = document.getElementById('category-list');
+            const arrow = document.getElementById('cate-arrow');
+
+            list.classList.toggle('hidden');
+            arrow.style.transform = list.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        // Tự động mở danh mục nếu đang lọc
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryID = urlParams.get('CategoryID');
+            if (categoryID && categoryID !== '0') {
+                const list = document.getElementById('category-list');
+                const arrow = document.getElementById('cate-arrow');
+                list.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        });
+
+        // ảnh sẽ tự đônhr đổi sau 4 giây
+        document.addEventListener("DOMContentLoaded", function() {
+            const slides = document.querySelectorAll('#hero-slideshow .slide-img');
+            let currentSlide = 0;
+
+            function nextSlide() {
+                // Ẩn ảnh hiện tại
+                slides[currentSlide].classList.replace('opacity-100', 'opacity-0');
+
+                // Tính toán index ảnh tiếp theo
+                currentSlide = (currentSlide + 1) % slides.length;
+
+                // Hiện ảnh tiếp theo
+                slides[currentSlide].classList.replace('opacity-0', 'opacity-100');
+            }
+
+            // Tự động chuyển sau 4000ms (4 giây)
+            if (slides.length > 1) {
+                setInterval(nextSlide, 4000);
+            }
+        });
+    </script>
+}

@@ -1,0 +1,109 @@
+﻿@model SV22T1020811.Models.Catalog.Product
+@{
+    ViewBag.Title = "Xóa mặt hàng";
+    // Kiểm tra xem người dùng có phải là Admin hay không
+    bool isAdmin = User.IsInRole("admin");
+    // Quyền được xóa: Nếu là Admin THÌ luôn được xóa, nếu không thì phải check CanDelete
+    bool allowDelete = isAdmin || (ViewBag.CanDelete == true);
+}
+
+@section PageToolBar {
+    @* Hiện nút xóa dựa trên quyền allowDelete đã tính toán *@
+    @if (allowDelete)
+    {
+        <button type="submit" form="formDelete" class="btn btn-danger"
+                onclick="return confirm('Hành động này không thể hoàn tác. Bạn chắc chắn muốn xóa?')">
+            <i class="bi bi-trash me-1"></i>
+            @(isAdmin ? "Xóa vĩnh viễn (Admin)" : "Xóa dữ liệu")
+        </button>
+    }
+    <a href="~/Product" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card @(allowDelete ? "card-danger" : "card-secondary") card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0 @(allowDelete ? "text-danger" : "text-secondary")">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Xác nhận xóa mặt hàng
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <form id="formDelete" action="~/Product/DoDelete/@Model.ProductID" method="post">
+
+                    @if (isAdmin)
+                    {
+                        <div class="alert alert-info d-flex align-items-center">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            <strong>Quyền Admin:</strong> Bạn có quyền xóa mọi mặt hàng kể cả khi đã có dữ liệu liên quan. Hãy cẩn trọng!
+                        </div>
+                    }
+                    else if (ViewBag.CanDelete == true)
+                    {
+                        <div class="alert alert-warning d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Bạn có chắc chắn muốn xóa mặt hàng này không?
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger d-flex align-items-center">
+                            <i class="bi bi-slash-circle me-2"></i>
+                            Mặt hàng này đã có dữ liệu liên quan. Chỉ Admin mới có quyền thực hiện thao tác xóa này!
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Tên mặt hàng</dt>
+                                <dd class="col-sm-8 text-primary font-weight-bold">@Model.ProductName</dd>
+
+                                <dt class="col-sm-4">Loại hàng</dt>
+                                <dd class="col-sm-8">@ViewBag.CategoryName</dd>
+
+                                <dt class="col-sm-4">Nhà cung cấp</dt>
+                                <dd class="col-sm-8">@ViewBag.SupplierName</dd>
+
+                                <dt class="col-sm-4">Đơn vị tính</dt>
+                                <dd class="col-sm-8">@Model.Unit</dd>
+
+                                <dt class="col-sm-4">Giá bán</dt>
+                                <dd class="col-sm-8">@Model.Price.ToString("N0") đ</dd>
+
+                                <dt class="col-sm-4">Trạng thái</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.IsSelling)
+                                    {
+                                        <span class="badge bg-success">Đang bán</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Ngừng kinh doanh</span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Mô tả</dt>
+                                <dd class="col-sm-8">
+                                    @(string.IsNullOrEmpty(Model.ProductDescription) ? "Không có mô tả" : Model.ProductDescription)
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-md-4 text-end">
+                            <img src="~/images/products/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)"
+                                 class="img-fluid img-thumbnail"
+                                 alt="Ảnh mặt hàng"
+                                 style="max-height: 220px;" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

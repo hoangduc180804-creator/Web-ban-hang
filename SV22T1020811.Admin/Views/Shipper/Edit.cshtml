@@ -1,0 +1,59 @@
+﻿@model SV22T1020811.Models.Partner.Shipper
+@{
+    // Tự động đổi tiêu đề dựa vào ID (ID = 0 là thêm mới)
+    ViewBag.Title = Model.ShipperID == 0 ? "Bổ sung người giao hàng" : "Cập nhật người giao hàng";
+}
+
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+
+    <a href="~/Shipper" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bicycle me-2"></i>
+                    @ViewBag.Title
+                </h5>
+            </div>
+
+            <div class="card-body">
+                @* Chỉ định action trỏ về hàm Save trong Controller *@
+                <form id="formEdit" action="~/Shipper/Save" method="post">
+
+                    @* Hidden input để giữ ShipperID khi gửi về Server *@
+                    <input type="hidden" name="ShipperID" value="@Model.ShipperID" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên người giao hàng</label>
+                        <input type="text"
+                               name="ShipperName"
+                               class="form-control"
+                               placeholder="Nhập tên người giao hàng"
+                               value="@Model.ShipperName"
+                               autofocus />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Điện thoại</label>
+                        <input type="tel"
+                               name="Phone"
+                               class="form-control"
+                               placeholder="Nhập số điện thoại"
+                               value="@Model.Phone" />
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

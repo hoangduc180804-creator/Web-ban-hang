@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.72" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SV22T1020811.BuisnessLayers\SV22T1020811.BuisnessLayers.csproj" />
+    <ProjectReference Include="..\SV22T1020811.DataLayers\SV22T1020811.DataLayers.csproj" />
+    <ProjectReference Include="..\SV22T1020811.Models\SV22T1020811.Models.csproj" />
+  </ItemGroup>
+
+</Project>

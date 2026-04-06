@@ -1,0 +1,168 @@
+﻿@model dynamic
+@{
+    Layout = null;
+
+    // Kiểm tra xem đây là Đơn hàng trong DB hay Giỏ hàng trong Session
+    bool isOrderDetail = false;
+    try
+    {
+        // Nếu có thuộc tính OrderID và nó khác 0 thì là Đơn hàng trong DB
+        isOrderDetail = Model.OrderID > 0;
+    }
+    catch { }
+
+    // Xác định Action để gửi dữ liệu
+    string actionUrl = isOrderDetail ? "~/Order/UpdateDetail" : "~/Order/AddToCart";
+    string formId = isOrderDetail ? "formUpdateOrderDetail" : "formUpdateCartItem";
+}
+
+<div class="modal-header">
+    <strong class="modal-title">
+        <i class="bi bi-pencil-square"></i> Cập nhật chi tiết đơn hàng
+    </strong>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+    <form id="@formId" action="@Url.Content(actionUrl)" method="post" class="container-fluid">
+        @* Các hidden input để giữ thông tin định danh *@
+        @if (isOrderDetail)
+        {
+            <input type="hidden" name="OrderID" value="@Model.OrderID" />
+        }
+        <input type="hidden" name="ProductID" value="@Model.ProductID" />
+        <input type="hidden" name="ProductName" value="@Model.ProductName" />
+        <input type="hidden" name="Unit" value="@Model.Unit" />
+        <input type="hidden" name="Photo" value="@Model.Photo" />
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label fw-semibold">Mặt hàng</label>
+                    <div class="col-sm-8">
+                        <input type="text"
+                               class="form-control-plaintext fw-bold text-primary"
+                               value="@Model.ProductName"
+                               readonly>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label fw-semibold">Số lượng</label>
+                    <div class="col-sm-5">
+                        <input type="number"
+                               name="Quantity"
+                               class="form-control text-end"
+                               min="1"
+                               value="@Model.Quantity">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label fw-semibold">Đơn giá</label>
+                    <div class="col-sm-5">
+                        <input type="text"
+                               name="SalePrice"
+                               class="form-control text-end money-input"
+                               value="@Model.SalePrice.ToString("N0")">
+                    </div>
+                    @* THÔNG BÁO LỖI HIỂN THỊ DƯỚI THANH GIÁ *@
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="price-error-msg" class="text-danger" style="display:none; font-size: 0.8rem;">
+                            <i class="bi bi-x-circle"></i> Giá không được âm. Đã trả về giá cũ!
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <img src="~/images/products/@(string.IsNullOrEmpty(Model.Photo) ? "demo.png" : Model.Photo)"
+                     alt="@Model.ProductName"
+                     class="img-thumbnail"
+                     style="max-height:150px">
+            </div>
+        </div>
+
+        <div class="modal-footer px-0 pb-0">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Cập nhật
+            </button>
+            <button type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                Đóng
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var formSelector = "#@formId";
+        var originalPrice = @Model.SalePrice; // Lưu giá cũ từ Model
+
+        if (typeof AutoNumeric !== 'undefined') {
+            document.querySelectorAll(formSelector + " .money-input").forEach(element => {
+                new AutoNumeric(element, {
+                    digitGroupSeparator: '.',
+                    decimalCharacter: ',',
+                    decimalPlaces: 0,
+                    unformatOnSubmit: true
+                });
+            });
+        }
+
+        $(formSelector).on("submit", function (e) {
+            e.preventDefault();
+
+            // Lấy giá trị hiện tại từ AutoNumeric hoặc Input
+            var priceInput = $(this).find("input[name='SalePrice']");
+            var currentPrice = 0;
+
+            if (typeof AutoNumeric !== 'undefined' && AutoNumeric.getAutoNumericElement(priceInput[0])) {
+                currentPrice = AutoNumeric.getAutoNumericElement(priceInput[0]).getNumber();
+            } else {
+                currentPrice = parseFloat(priceInput.val().replace(/\./g, ''));
+            }
+
+            // KIỂM TRA GIÁ ÂM
+            if (currentPrice < 0) {
+                // 1. Hiện thông báo lỗi dưới thanh giá
+                $("#price-error-msg").fadeIn();
+
+                // 2. Khôi phục giá cũ
+                if (typeof AutoNumeric !== 'undefined' && AutoNumeric.getAutoNumericElement(priceInput[0])) {
+                    AutoNumeric.getAutoNumericElement(priceInput[0]).set(originalPrice);
+                } else {
+                    priceInput.val(originalPrice);
+                }
+
+                // 3. Tự động ẩn thông báo sau 3 giây
+                setTimeout(function() {
+                    $("#price-error-msg").fadeOut();
+                }, 3000);
+
+                return false; // Chặn không cho gửi Ajax
+            }
+
+            var action = $(this).attr("action");
+            var method = $(this).attr("method");
+            var data = $(this).serialize();
+
+            $.ajax({
+                url: action,
+                type: method,
+                data: data,
+                success: function (res) {
+                    if ("@isOrderDetail" === "True") {
+                        window.location.reload();
+                    } else {
+                        $("#showCart").html(res);
+                        $("#dialogModal").modal("hide");
+                    }
+                },
+                error: function() {
+                    alert("Có lỗi xảy ra khi cập nhật sản phẩm.");
+                }
+            });
+        });
+    });
+</script>

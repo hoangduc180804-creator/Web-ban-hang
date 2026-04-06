@@ -1,0 +1,134 @@
+﻿@model Customer
+@{
+    // Bạn có thể lấy Title từ ViewBag đã đặt ở Controller
+}
+
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+    <a asp-action="Index" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-people me-2"></i>
+                    @ViewBag.Title
+                </h5>
+            </div>
+
+            <div class="card-body">
+                @* Nếu CustomerID == 0 thì gửi về Create, ngược lại gửi về Edit *@
+                <form id="formEdit"
+                      asp-action="@(Model.CustomerID == 0 ? "Create" : "Edit")"
+                      method="post">
+                    @* QUAN TRỌNG: Phải có Id ẩn để Controller biết sửa ai *@
+                    <input type="hidden" asp-for="CustomerID" />
+
+                    @* Hiển thị tổng hợp lỗi nếu có *@
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="row align-items-end">
+                        <div class="col-md-5 mb-3">
+                            <label asp-for="CustomerName" class="form-label">Tên khách hàng</label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="Nhập tên khách hàng" autofocus />
+                            <span asp-validation-for="CustomerName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label asp-for="ContactName" class="form-label">Tên giao dịch</label>
+                            <input asp-for="ContactName" class="form-control" placeholder="Nhập tên giao dịch" />
+                            <span asp-validation-for="ContactName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label d-block">Trạng thái</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" asp-for="IsActive" id="chkIsActive" />
+
+                                <label class="form-check-label" for="chkIsActive" id="lblStatus">
+                                    @(Model.IsActive ? "Đang hoạt động" : "Bị khóa")
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label asp-for="Phone" class="form-label">Điện thoại</label>
+                            <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại" />
+                        </div>
+
+                        <div class="col-md-7 mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="Nhập email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label">Địa chỉ</label>
+                        <textarea asp-for="Address" class="form-control" rows="3" placeholder="Nhập địa chỉ"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Province" class="form-label">Tỉnh / Thành</label>
+                        <select asp-for="Province" class="form-select">
+                            <option value="">-- Chọn tỉnh / thành --</option>
+                            <option value="Hà Nội">Hà Nội</option>
+                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                            <option value="Đà Nẵng">Đà Nẵng</option>
+                            <option value="Cần Thơ">Cần Thơ</option>
+                            <option value="Quảng Trị">Quảng Trị</option>
+                            <option value="Phú Yên">Phú Yên</option>
+                            <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+                        </select>
+                        <span asp-validation-for="Province" class="text-danger"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @* Thêm bộ Validation phía Client để kiểm tra dữ liệu ngay lập tức mà không cần reload trang *@
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Đợi cho trang load xong
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lấy ra đúng cái checkbox và cái label dựa vào ID
+            const checkbox = document.getElementById('chkIsActive');
+            const label = document.getElementById('lblStatus');
+
+            // Hàm cập nhật chữ và màu sắc
+            function updateStatus() {
+                if (checkbox.checked) {
+                    label.innerText = 'Đang hoạt động';
+                    label.style.color = 'green';
+                    label.style.fontWeight = 'bold';
+                } else {
+                    label.innerText = 'Bị khóa';
+                    label.style.color = 'red';
+                    label.style.fontWeight = 'bold';
+                }
+            }
+
+            // Kiểm tra nếu tìm thấy các phần tử thì mới gắn sự kiện
+            if (checkbox && label) {
+                // Chạy ngay lần đầu khi load trang để khớp dữ liệu từ DB
+                updateStatus();
+
+                // Lắng nghe sự kiện thay đổi khi người dùng gạt nút
+                checkbox.addEventListener('change', function () {
+                    updateStatus();
+                });
+            }
+        });
+    </script>
+}

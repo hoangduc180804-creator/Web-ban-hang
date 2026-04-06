@@ -1,0 +1,97 @@
+﻿@model SV22T1020811.Models.Partner.Supplier
+@{
+    // Tự động đổi tiêu đề dựa trên ID
+    ViewBag.Title = Model.SupplierID == 0 ? "Bổ sung nhà cung cấp" : "Cập nhật nhà cung cấp";
+}
+
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+
+    <a href="~/Supplier" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-truck me-2"></i>
+                    @ViewBag.Title
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <form id="formEdit" action="~/Supplier/Save" method="post">
+                    @* Hidden ID để biết là thêm hay sửa *@
+                    <input type="hidden" name="SupplierID" value="@Model.SupplierID" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên nhà cung cấp</label>
+                        <input type="text" name="SupplierName"
+                               class="form-control"
+                               placeholder="Nhập tên nhà cung cấp"
+                               value="@Model.SupplierName" autofocus />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tên giao dịch</label>
+                        <input type="text" name="ContactName"
+                               class="form-control"
+                               placeholder="Nhập tên giao dịch"
+                               value="@Model.ContactName" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Điện thoại</label>
+                            <input type="tel" name="Phone"
+                                   class="form-control"
+                                   placeholder="Nhập số điện thoại"
+                                   value="@Model.Phone" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="Email"
+                                   class="form-control"
+                                   placeholder="Nhập email"
+                                   value="@Model.Email" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input type="text" name="Address"
+                               class="form-control"
+                               placeholder="Nhập địa chỉ"
+                               value="@Model.Address" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tỉnh / Thành</label>
+                        <select class="form-select" name="Province">
+                            <option value="">-- Chọn tỉnh / thành --</option>
+                            @foreach (var p in ViewBag.Provinces)
+                            {
+                                if (p.ProvinceName == Model.Province)
+                                {
+                                    <option value="@p.ProvinceName" selected>@p.ProvinceName</option>
+                                }
+                                else
+                                {
+                                    <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

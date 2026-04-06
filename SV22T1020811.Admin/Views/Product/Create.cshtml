@@ -1,0 +1,29 @@
+﻿<div class="card card-primary mt-3">
+    <div class="card-header"><h3 class="card-title">Bổ sung mặt hàng mới</h3></div>
+    <form action="~/Product/Save" method="post" enctype="multipart/form-data">
+        <div class="card-body">
+            <div class="form-group mb-3">
+                <label>Tên mặt hàng:</label>
+                <input type="text" class="form-control" name="ProductName" autofocus>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Loại hàng:</label>
+                    <select class="form-control" name="CategoryId"><option>-- Chọn loại hàng --</option></select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Nhà cung cấp:</label>
+                    <select class="form-control" name="SupplierId"><option>-- Chọn nhà cung cấp --</option></select>
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <label>Ảnh minh họa:</label>
+                <input type="file" class="form-control" name="Photo">
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+            <a href="~/Product" class="btn btn-default">Hủy bỏ</a>
+        </div>
+    </form>
+</div>

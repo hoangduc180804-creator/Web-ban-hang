@@ -1,0 +1,135 @@
+﻿@model IEnumerable<SV22T1020811.Models.Sales.CartItem>
+@using SV22T1020811.Models.DataDictionary
+@{
+    ViewData["Title"] = "Thanh toán";
+}
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #00497d;
+        border-radius: 10px;
+    }
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+</style>
+
+<main class="pt-28 pb-20 px-6 max-w-6xl mx-auto min-h-screen font-sans">
+    <div class="flex items-center gap-4 mb-10">
+        <a href="~/Cart" class="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#00497d] transition-all shadow-sm">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h2 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Thanh toán đơn hàng</h2>
+    </div>
+
+    <form action="~/Order/PlaceOrder" method="post" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div class="lg:col-span-7 space-y-6">
+            <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm p-8">
+                <h3 class="font-black text-xl text-slate-800 mb-8 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[#00497d]">location_on</span>
+                    Thông tin nhận hàng
+                </h3>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="mb-6 p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold border border-red-100">
+                        @Html.ValidationSummary(false, "")
+                    </div>
+                }
+
+                <div class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Tỉnh / Thành phố</label>
+                        <div class="relative">
+                            <select name="deliveryProvince" required
+                                    class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#00497d] transition-all font-bold text-slate-700 outline-none cursor-pointer">
+                                <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                                @if (ViewBag.Provinces != null)
+                                {
+                                    foreach (var item in (IEnumerable<Province>)ViewBag.Provinces)
+                                    {
+                                        // So sánh với Province trong Profile để chọn sẵn (Selected)
+                                        bool isSelected = (ViewBag.CustomerProfile != null && item.ProvinceName == ViewBag.CustomerProfile.Province);
+
+                                        if (isSelected)
+                                        {
+                                            <option value="@item.ProvinceName" selected>@item.ProvinceName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.ProvinceName">@item.ProvinceName</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase ml-2 tracking-widest">Địa chỉ chi tiết</label>
+                        <textarea name="deliveryAddress" required rows="4"
+                                  placeholder="Số nhà, tên đường, phường/xã..."
+                                  class="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#00497d] transition-all font-medium text-slate-700 outline-none">@(ViewBag.CustomerProfile?.Address)</textarea>
+                        <p class="text-[10px] text-slate-400 italic ml-2">* Đức có thể thay đổi địa chỉ này nếu muốn giao đến nơi khác.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-[#00497d] rounded-[32px] p-8 text-white flex items-center justify-between shadow-xl shadow-blue-100">
+                <div>
+                    <h4 class="font-bold text-blue-200 text-xs uppercase tracking-widest">Phương thức thanh toán</h4>
+                    <p class="text-xl font-black mt-1">Thanh toán khi nhận hàng (COD)</p>
+                </div>
+                <span class="material-symbols-outlined text-5xl opacity-30">payments</span>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5">
+            <div class="bg-white rounded-[32px] border border-slate-100 shadow-xl p-8 sticky top-28">
+                <h3 class="font-black text-xl text-slate-900 mb-6 pb-4 border-b border-slate-50">Đơn hàng của Đức</h3>
+
+                <div class="space-y-4 mb-8 max-h-72 overflow-y-auto custom-scrollbar pr-2">
+                    @foreach (var item in Model)
+                    {
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-50 overflow-hidden flex-shrink-0 border border-slate-50">
+                                <img src="@(string.IsNullOrEmpty(item.Photo) ? "/images/products/no-photo.png" : "/images/products/" + item.Photo)"
+                                     class="w-full h-full object-cover"
+                                     onerror="this.src='/images/products/no-photo.png'">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-xs text-slate-800 truncate">@item.ProductName</h4>
+                                <p class="text-[10px] text-slate-400 font-black uppercase">SL: @item.Quantity × @item.SalePrice.ToString("N0")</p>
+                            </div>
+                            <span class="font-black text-sm text-slate-900">@item.TotalPrice.ToString("N0")</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="pt-6 border-t border-slate-50 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="font-black text-slate-500 text-sm uppercase tracking-tighter">Tổng tiền hàng</span>
+                        <span class="text-2xl font-black text-[#00497d]">@Model.Sum(i => i.TotalPrice).ToString("N0") <ins class="no-underline text-xs">đ</ins></span>
+                    </div>
+
+                    <button type="submit" class="w-full mt-4 bg-[#00497d] text-white py-5 rounded-[24px] font-black uppercase tracking-widest hover:bg-[#003860] hover:shadow-2xl active:scale-[0.98] transition-all shadow-lg shadow-blue-100">
+                        Xác nhận đặt hàng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>

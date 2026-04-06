@@ -1,0 +1,111 @@
+﻿@{
+    ViewBag.Title = "Lập đơn hàng";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card card-outline card-primary shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-search"></i> Lựa chọn hàng cần bán</h5>
+            </div>
+            <div class="card-body">
+                <form id="formSearchProduct" action="~/Order/SearchProduct" method="get">
+                    <div class="input-group">
+                        <input class="form-control" name="searchValue" id="inputSearchValue"
+                               placeholder="Nhập tên mặt hàng cần tìm" />
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="searchProductResult" class="mt-3">
+                    <p class="text-center text-muted">Đang tải dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8" id="showCart">
+        @* Nạp trực tiếp Partial View ShowCart vào đây *@
+        @await Html.PartialAsync("ShowCart", new List<SV22T1020811.Models.Sales.CartItem>())
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function doSearchProduct(page) {
+            var searchValue = $("#inputSearchValue").val();
+            $.ajax({
+                url: "/Order/SearchProduct",
+                type: "GET",
+                data: { searchValue: searchValue, page: page },
+                success: function (res) {
+                    $("#searchProductResult").html(res);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            doSearchProduct(1);
+
+            $("#formSearchProduct").submit(function (e) {
+                e.preventDefault();
+                doSearchProduct(1);
+            });
+
+            // A. Thêm vào giỏ
+            $(document).on("submit", ".ajax-add-to-cart", function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: $(this).attr("action"),
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function (res) {
+                        $("#showCart").html(res);
+                    }
+                });
+            });
+
+            // B. Mở Modal
+            $(document).on("click", ".open-modal", function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                $.get(url, function (data) {
+                    $("#dialogModal .modal-content").html(data);
+                    $("#dialogModal").modal("show");
+                });
+            });
+
+            // C. Link xóa/làm trống giỏ hàng
+            $(document).on("click", ".ajax-link", function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+                $.get(url, function (res) {
+                    $("#showCart").html(res);
+                });
+            });
+
+            // D. Quan trọng: Xử lý Lập đơn hàng
+            $(document).on("submit", "#formInitOrder", function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
+                    success: function (res) {
+                        if (res.success) {                          
+                            window.location.href = "/Order/Detail/" + res.orderID;
+                        } else {
+                            alert("Lỗi: " + res.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Không thể kết nối đến máy chủ.");
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,147 @@
+﻿@using SV22T1020811.Models.DataDictionary
+@using SV22T1020811.Models.Partner
+@model IEnumerable<SV22T1020811.Models.Sales.CartItem>
+@{
+    Layout = null;
+    int index = 1;
+    decimal total = 0;
+}
+
+<div class="col-12">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-outline card-success">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-cart"></i>
+                        Danh sách mặt hàng đã chọn
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="table-success">
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th style="width:auto">Tên hàng</th>
+                                <th class="text-center" style="width:100px">ĐVT</th>
+                                <th class="text-center" style="width:100px">SL</th>
+                                <th class="text-end" style="width:150px">Giá</th>
+                                <th class="text-end" style="width:150px">Thành tiền</th>
+                                <th style="width:80px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var item in Model)
+                                {
+                                    total += item.Quantity * item.SalePrice;
+                                    <tr>
+                                        <td class="text-center">@(index++)</td>
+                                        <td>@item.ProductName</td>
+                                        <td class="text-center">@item.Unit</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">@item.SalePrice.ToString("N0")</td>
+                                        <td class="text-end">@((item.Quantity * item.SalePrice).ToString("N0"))</td>
+                                        <td class="text-end text-nowrap">
+                                            <a class="btn btn-sm btn-primary open-modal" href="~/Order/EditCartItem/@item.ProductID">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a class="btn btn-xs btn-danger open-modal" href="/Order/DeleteCartItem/@item.ProductID"><i class="bi bi-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Giỏ hàng trống</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="5" class="text-end">Tổng cộng:</th>
+                                <th class="text-end">@total.ToString("N0")</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="text-end">
+                        <a class="btn btn-sm btn-danger mt-2 ajax-link"
+                           href="~/Order/ClearCart"
+                           onclick="return confirm('Bạn có chắc muốn xóa sạch giỏ hàng?')">
+                            <i class="bi bi-trash"></i>
+                            Xóa giỏ hàng
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person"></i>
+                        Thông tin khách hàng & nơi giao hàng
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form action="~/Order/InitOrder" method="post" id="formInitOrder">
+                        <div class="row mb-3">
+                            <label class="col-md-2 col-form-label">Khách hàng</label>
+                            <div class="col-md-10">
+                                <select class="form-select select2" name="customerID" required>
+                                    <option value="">-- Chọn khách hàng --</option>
+                                    @if (ViewBag.CustomerList != null)
+                                    {
+                                        foreach (var c in (IEnumerable<Customer>)ViewBag.CustomerList)
+                                        {
+                                            <option value="@c.CustomerID">@c.CustomerName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-2 col-form-label">Tỉnh/thành</label>
+                            <div class="col-md-10">
+                                <select class="form-select select2" name="deliveryProvince" required>
+                                    <option value="">-- Chọn Tỉnh/thành giao hàng --</option>
+                                    @if (ViewBag.ProvinceList != null)
+                                    {
+                                        foreach (var p in (IEnumerable<Province>)ViewBag.ProvinceList)
+                                        {
+                                            <option value="@p.ProvinceName">@p.ProvinceName</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-2 col-form-label">Địa chỉ</label>
+                            <div class="col-md-10">
+                                <textarea class="form-control" name="deliveryAddress" rows="2" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary" @(Model != null && Model.Any() ? "" : "disabled")>
+                                <i class="bi bi-check-circle"></i>
+                                Lập đơn hàng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

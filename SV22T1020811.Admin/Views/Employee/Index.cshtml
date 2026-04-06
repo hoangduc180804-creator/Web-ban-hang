@@ -1,0 +1,67 @@
+﻿@using SV22T1020811.Models.Common
+@using SV22T1020811.Models.HR
+@model PagedResult<Employee>
+
+@{
+    ViewBag.Title = "Quản lý Nhân viên";
+}
+
+@section PageToolBar {
+    <a href="@Url.Action("Create", "Employee")" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Bổ sung
+    </a>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form id="formSearch">
+            <div class="input-group">
+                <input type="text" name="SearchValue" class="form-control" placeholder="Tên nhân viên..." value="@ViewBag.SearchValue" autofocus />
+                <button type="button" class="btn btn-info d-flex align-items-center" onclick="doSearch(1)">
+                    <i class="bi bi-search me-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="searchResult">
+    @Html.Partial("Search", Model)
+</div>
+
+@section scripts {
+<script>
+    function doSearch(page) {
+        var form = $("#formSearch");
+        var data = form.serializeArray();
+        data.push({ name: "Page", value: page });
+
+        $.ajax({
+            url: '@Url.Action("Search", "Employee")',
+            type: 'get',
+            data: data,
+            success: function(result) {
+                $("#searchResult").html(result);
+            },
+            error: function() {
+                alert("Lỗi khi tải dữ liệu!");
+            }
+        });
+    }
+
+    function paginationSearch(event, page) {
+        event.preventDefault();
+        doSearch(page);
+    }
+
+    $(document).ready(function() {
+        // Nhấn enter search
+        $("#formSearch input[name='SearchValue']").keypress(function(e) {
+            if(e.which === 13) {
+                e.preventDefault();
+                doSearch(1);
+            }
+        });
+    });
+</script>
+}

@@ -1,0 +1,33 @@
+﻿<div class="card card-primary mt-3">
+    <div class="card-header"><h3 class="card-title">@ViewBag.Title</h3></div>
+    <form action="~/Customer/Save" method="post">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ tên khách hàng:</label>
+                        <input type="text" class="form-control" name="CustomerName" autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Điện thoại:</label>
+                        <input type="text" class="form-control" name="Phone">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email:</label>
+                        <input type="email" class="form-control" name="Email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Địa chỉ:</label>
+                        <input type="text" class="form-control" name="Address">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-floppy"></i> Lưu khách hàng</button>
+            <a href="~/Customer" class="btn btn-default">Quay lại</a>
+        </div>
+    </form>
+</div>

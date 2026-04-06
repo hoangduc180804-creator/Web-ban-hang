@@ -1,0 +1,91 @@
+﻿@model PagedResult<Customer>
+@{
+    Layout = null;
+    ViewBag.Title = "Kết quả tìm kiếm khách hàng";
+}
+<div class="mb-2 text-muted">
+    Danh sách này có <strong>@Model.RowCount</strong> khách hàng
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Tên khách hàng</th>
+                    <th>Tên giao dịch</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                    <th>Tỉnh / Thành</th>
+                    <th class="text-center" style="width:120px;">Trạng thái</th>
+                    <th class="text-center" style="width:100px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DataItems)
+                {
+                    <tr>
+                        <td>@item.CustomerName</td>
+                        <td>@item.ContactName</td>
+                        <td>@item.Phone</td>
+                        <td>@item.Email</td>
+                        <td>@item.Address</td>
+                        <td>@item.Province</td>
+                        <td class="text-center">
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Bị khóa</span>
+                            }
+                        </td>
+                        <td class="text-center text-nowrap">
+                            <a href="~/Customer/Edit/@item.CustomerID" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="~/Customer/Delete/@item.CustomerID" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <a href="~/Customer/ChangePassword/@item.CustomerID" class="btn btn-sm btn-warning ms-2">
+                                <i class="bi bi-key"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer">
+        <!-- Pagination -->
+        <ul class="pagination justify-content-center">
+            @foreach (var p in Model.GetDisplayPages())
+            {
+                if (p.IsCurrent)
+                {
+                    <li class="page-item active">
+                        <a class="page-link" href="#">@p.Page</a>
+                    </li>
+                }
+                else if (p.IsEllipsis)
+                {
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">...</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="javascript:;"
+                           onclick="paginationSearch(event, document.getElementById('formSearch'), @p.Page)">
+                            @p.Page
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+﻿@model SV22T1020811.Models.Catalog.Category
+@{
+}
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+    <a href="~/Category" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-tags me-2"></i>
+                    Thông tin loại hàng
+                </h5>
+            </div>
+
+            <div class="card-body">
+                @* Chỉ định rõ action để gửi dữ liệu về hàm Save *@
+                <form id="formEdit" action="~/Category/Save" method="post">
+
+                    @* Trường ẩn để lưu CategoryID (0 nếu thêm mới, >0 nếu cập nhật) *@
+                    <input type="hidden" name="@nameof(Model.CategoryID)" value="@Model.CategoryID" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên loại hàng</label>
+                        <input type="text"
+                               name="@nameof(Model.CategoryName)"
+                               value="@Model.CategoryName"
+                               class="form-control"
+                               placeholder="Nhập tên loại hàng"
+                               autofocus />
+                        @* Hiển thị thông báo lỗi nếu tên trống *@
+                        @Html.ValidationMessage(nameof(Model.CategoryName), "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mô tả</label>
+                        <textarea name="@nameof(Model.Description)"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Nhập mô tả loại hàng">@Model.Description</textarea>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

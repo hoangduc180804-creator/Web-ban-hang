@@ -1,0 +1,95 @@
+﻿@using SV22T1020811.Models.Common
+@using SV22T1020811.Models.HR
+@model PagedResult<Employee>
+@{
+    Layout = null;
+}
+
+<div class="mb-2 text-muted">
+    Danh sách có <strong>@Model.RowCount</strong> nhân viên
+</div>
+
+<div class="card">
+    <div class="card-body p-1">
+        <table class="table table-bordered table-hover mb-0">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Ngày sinh</th>
+                    <th>Điện thoại</th>
+                    <th>Email</th>
+                    <th>Địa chỉ</th>
+                    <th class="text-center" style="width:140px;">Trạng thái</th>
+                    <th class="text-center" style="width:160px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.DataItems)
+                {
+                    <tr>
+                        <td class="align-middle fw-bold">@item.FullName</td>
+                        <td class="align-middle">@((item.BirthDate.HasValue) ? item.BirthDate.Value.ToString("dd/MM/yyyy") : "")</td>
+                        <td class="align-middle">@item.Phone</td>
+                        <td class="align-middle">@item.Email</td>
+                        <td class="align-middle">@item.Address</td>
+                        <td class="text-center align-middle">
+                            @if (item.IsWorking ?? false)
+                            {
+                                <span class="badge bg-success">Đang làm việc</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Đã nghỉ việc</span>
+                            }
+                        </td>
+                        <td class="text-center text-nowrap align-middle">
+                            <a href="@Url.Action("Edit", "Employee", new { id = item.EmployeeID })" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="@Url.Action("Delete", "Employee", new { id = item.EmployeeID })" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <a href="@Url.Action("ChangePassword", "Employee", new { id = item.EmployeeID })" class="btn btn-sm btn-warning">
+                                <i class="bi bi-key"></i>
+                            </a>
+                            <a href="@Url.Action("ChangeRole", "Employee", new { id = item.EmployeeID })" class="btn btn-sm btn-info">
+                                <i class="bi bi-shield-check"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.PageCount > 1)
+    {
+        <div class="card-footer">
+            <ul class="pagination justify-content-center m-0">
+                @foreach (var p in Model.GetDisplayPages())
+                {
+                    if (p.IsCurrent)
+                    {
+                        <li class="page-item active">
+                            <a class="page-link" href="#">@p.Page</a>
+                        </li>
+                    }
+                    else if (p.IsEllipsis)
+                    {
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="javascript:;" onclick="paginationSearch(event, @p.Page)">
+                                @p.Page
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+</div>

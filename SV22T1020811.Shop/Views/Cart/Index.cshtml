@@ -1,0 +1,163 @@
+﻿@model IEnumerable<SV22T1020811.Models.Sales.CartItem>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Giỏ hàng - DUC Shop";
+    decimal totalCart = Model.Sum(p => p.TotalPrice);
+}
+
+@* Giữ nguyên các phần Link CSS và Style cũ của Đức *@
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+    .cta-gradient {
+        background: linear-gradient(135deg, #00497d 0%, #0061a4 100%);
+    }
+
+    .text-outline {
+        color: #717782;
+    }
+</style>
+
+<main class="mt-28 mb-20 max-w-7xl mx-auto px-6 lg:px-8">
+    @* Phần Thanh trạng thái (1-2-3) giữ nguyên *@
+    <div class="flex flex-col md:flex-row justify-center items-center mb-16 gap-4 md:gap-0">
+        <div class="flex items-center">
+            <div class="w-10 h-10 rounded-full cta-gradient text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/20">1</div>
+            <span class="ml-3 font-headline font-bold text-[#00497d]">Giỏ hàng</span>
+        </div>
+        <div class="w-16 h-[2px] bg-slate-200 mx-4 hidden md:block"></div>
+        <div class="flex items-center opacity-40">
+            <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm">2</div>
+            <span class="ml-3 font-headline font-bold">Giao hàng</span>
+        </div>
+        <div class="w-16 h-[2px] bg-slate-200 mx-4 hidden md:block"></div>
+        <div class="flex items-center opacity-40">
+            <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-sm">3</div>
+            <span class="ml-3 font-headline font-bold">Thanh toán</span>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
+            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">shopping_basket</span>
+            <h2 class="text-2xl font-bold text-slate-500">Giỏ hàng của Đức đang trống</h2>
+            <a href="~/" class="mt-6 inline-block text-[#00497d] font-bold hover:underline">Quay lại cửa hàng</a>
+        </div>
+    }
+    else
+    {
+        <div class="flex flex-col lg:flex-row gap-12">
+            <section class="lg:w-2/3">
+                <h1 class="text-3xl font-headline font-extrabold text-[#00497d] mb-8 tracking-tight">
+                    Giỏ hàng của bạn <span class="text-outline font-medium text-xl ml-2">(@Model.Count() sản phẩm)</span>
+                </h1>
+
+                <div class="space-y-6">
+                    @foreach (var item in Model)
+                    {
+                        <div class="bg-white rounded-2xl p-4 md:p-6 flex gap-4 md:gap-6 items-center shadow-sm transition-all hover:shadow-md border border-slate-50">
+
+                            @* CHỈNH SỬA: Cố định kích thước ảnh và dùng object-cover *@
+                            <div class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-50">
+                                <img alt="@item.ProductName"
+                                     class="w-full h-full object-cover"
+                                     src="@(string.IsNullOrEmpty(item.Photo) ? "/images/products/no-photo.png" : "/images/products/" + item.Photo)"
+                                     onerror="this.onerror=null;this.src='/images/products/no-photo.png';" />
+                            </div>
+
+                            <div class="flex-grow min-w-0">
+                                <div class="flex flex-col sm:flex-row justify-between items-start gap-2">
+                                    <div class="min-w-0 flex-grow">
+                                        <h3 class="font-headline font-bold text-lg md:text-xl text-slate-900 truncate">@item.ProductName</h3>
+                                        <p class="text-xs md:text-sm text-outline font-medium mt-1">Đơn vị: @item.Unit</p>
+                                    </div>
+                                    <span class="font-headline font-bold text-lg md:text-xl text-[#00497d] whitespace-nowrap">@item.SalePrice.ToString("N0")đ</span>
+                                </div>
+
+                                <div class="flex justify-between items-center mt-4 md:mt-6">
+                                    @* Bộ tăng giảm số lượng *@
+                                    <div class="flex items-center bg-slate-100 rounded-full px-3 py-1.5 md:px-4 md:py-2">
+                                        <button onclick="updateQty(@item.ProductID, -1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-[#00497d] hover:bg-white rounded-full transition-colors shadow-sm">
+                                            <span class="material-symbols-outlined text-base md:text-lg">remove</span>
+                                        </button>
+                                        <span class="mx-3 md:mx-4 font-bold font-body text-sm md:text-base">@item.Quantity</span>
+                                        <button onclick="updateQty(@item.ProductID, 1)" class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-[#00497d] hover:bg-white rounded-full transition-colors shadow-sm">
+                                            <span class="material-symbols-outlined text-base md:text-lg">add</span>
+                                        </button>
+                                    </div>
+
+                                    @* Nút xóa *@
+                                    <a href="~/Cart/Remove/@item.ProductID" class="flex items-center text-slate-400 hover:text-red-500 transition-colors font-medium text-xs md:text-sm">
+                                        <span class="material-symbols-outlined mr-1 text-lg">delete</span>
+                                        <span class="hidden sm:inline">Xóa</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <a href="~/" class="mt-12 flex items-center gap-2 text-[#00497d] font-semibold hover:translate-x-[-4px] transition-all cursor-pointer w-fit">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    <span>Tiếp tục mua sắm</span>
+                </a>
+            </section>
+
+            @* Phần Aside (Tổng kết đơn hàng) giữ nguyên *@
+            <aside class="lg:w-1/3">
+                <div class="bg-slate-50 rounded-2xl p-8 sticky top-28 border border-slate-100">
+                    <h2 class="text-2xl font-headline font-extrabold text-slate-900 mb-8">Tổng kết đơn hàng</h2>
+                    <div class="space-y-4 mb-8">
+                        <div class="flex justify-between text-slate-600 font-medium">
+                            <span>Tạm tính</span>
+                            <span>@totalCart.ToString("N0")đ</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 font-medium">
+                            <span>Vận chuyển</span>
+                            <span class="text-[#00497d] font-bold">Miễn phí</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 font-medium">
+                            <span>Thuế (VAT)</span>
+                            <span>0đ</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="block text-sm font-bold text-slate-900 mb-2 font-headline uppercase tracking-wider">Mã giảm giá</label>
+                        <div class="flex gap-2">
+                            <input class="flex-grow bg-white border border-slate-200 rounded-lg px-4 py-3 focus:ring-2 focus:ring-[#00497d] outline-none transition-all text-sm font-medium" placeholder="Nhập mã..." type="text" />
+                            <button class="bg-[#d1e4ff] text-[#00497d] px-6 py-3 rounded-lg font-bold text-sm hover:bg-[#00497d] hover:text-white transition-all">Áp dụng</button>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-6 mb-8">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-headline font-extrabold text-slate-900">Tổng cộng</span>
+                            <span class="text-3xl font-headline font-extrabold text-[#00497d]">@totalCart.ToString("N0")đ</span>
+                        </div>
+                    </div>
+
+                    <button onclick="location.href='/Order/Checkout'" class="w-full cta-gradient text-white py-5 rounded-full font-headline font-bold text-lg shadow-xl shadow-blue-200 hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition-all mb-6">
+                        Tiến hành thanh toán
+                    </button>
+
+                    <div class="flex flex-col gap-4 text-xs text-slate-400 font-medium text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">lock</span>
+                            Thanh toán an toàn & bảo mật
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    <script>
+        function updateQty(id, delta) {
+            window.location.href = `/Cart/UpdateQuantity?id=${id}&quantity=${delta}`;
+        }
+    </script>
+}

@@ -1,0 +1,35 @@
+﻿@model int
+@{
+    Layout = null;
+}
+@* Bao bọc bằng form POST để gửi ID đơn hàng về Action Cancel *@
+<form action="~/Order/Cancel/@Model" method="post" id="formCancel">
+    <div class="modal-header text-bg-warning">
+        <strong class="modal-title">
+            <i class="bi bi-exclamation-triangle me-2"></i>Xác nhận hủy đơn hàng
+        </strong>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body">
+        <div class="alert alert-warning d-flex align-items-center">
+            <i class="bi bi-info-circle me-2 fs-4"></i>
+            <div>
+                Bạn có thực sự muốn <strong>hủy đơn hàng</strong> này hay không?
+            </div>
+        </div>
+        <p class="text-muted small mb-0">Lưu ý: Hành động này không thể hoàn tác.</p>
+    </div>
+
+    <div class="modal-footer">
+        @* Sử dụng form="formCancel" để kích hoạt submit *@
+        <button type="submit" form="formCancel" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i> Chấp nhận
+        </button>
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">
+            Đóng
+        </button>
+    </div>
+</form>

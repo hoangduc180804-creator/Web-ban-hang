@@ -1,0 +1,23 @@
+﻿<div class="card card-primary mt-3">
+    <div class="card-header"><h3 class="card-title">@ViewBag.Title</h3></div>
+    <form action="~/Product/SaveAttribute" method="post">
+        <div class="card-body">
+            <div class="mb-3">
+                <label>Tên thuộc tính:</label>
+                <input type="text" class="form-control" name="AttributeName" placeholder="Ví dụ: Kích thước, Màu sắc...">
+            </div>
+            <div class="mb-3">
+                <label>Giá trị thuộc tính:</label>
+                <input type="text" class="form-control" name="AttributeValue" placeholder="Ví dụ: 128GB, Xanh Titan...">
+            </div>
+            <div class="mb-3">
+                <label>Thứ tự hiển thị:</label>
+                <input type="number" class="form-control" name="DisplayOrder" value="1">
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Lưu thuộc tính</button>
+            <a href="~/Product/Edit/1" class="btn btn-default">Quay lại</a>
+        </div>
+    </form>
+</div>

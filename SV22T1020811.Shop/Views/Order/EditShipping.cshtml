@@ -1,0 +1,36 @@
+﻿@model SV22T1020811.Models.Sales.OrderViewInfo
+@{
+    ViewData["Title"] = "Sửa thông tin giao hàng";
+}
+
+<main class="pt-28 pb-20 px-6 max-w-3xl mx-auto">
+    <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-100">
+        <h2 class="text-2xl font-black text-slate-900 uppercase mb-6">Sửa địa chỉ giao hàng #@Model.OrderID</h2>
+
+        <form asp-action="UpdateShipping" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="orderID" value="@Model.OrderID" />
+
+            <div class="space-y-2">
+                <label class="text-xs font-black text-slate-400 uppercase ml-2">Tỉnh / Thành phố</label>
+                <select name="deliveryProvince" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#00497d] transition-all font-medium">
+                    @foreach (var p in ViewBag.Provinces)
+                    {
+                        <option value="@p.ProvinceName" selected="@(p.ProvinceName == Model.DeliveryProvince)">@p.ProvinceName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-black text-slate-400 uppercase ml-2">Địa chỉ chi tiết</label>
+                <input type="text" name="deliveryAddress" value="@Model.DeliveryAddress" required
+                       class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-[#00497d] transition-all font-medium" />
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="flex-1 bg-[#00497d] text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-800 transition-all">Lưu thay đổi</button>
+                <a href="/Order/History" class="px-8 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold hover:bg-slate-200 transition-all text-center">Hủy</a>
+            </div>
+        </form>
+    </div>
+</main>

@@ -1,0 +1,64 @@
+﻿<nav class="app-header navbar navbar-expand bg-body-secondary">
+    <div class="container-fluid">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+                    <i class="bi bi-list"></i>
+                </a>
+            </li>
+            <li class="nav-item d-none d-md-block"><a href="~/" class="nav-link">Trang chủ</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown user-menu">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                    @{
+                        // 1. Lấy thông tin từ Claims
+                        var displayName = User.FindFirst("DisplayName")?.Value ?? "Guest";
+                        // Lấy thông tin quyền (Role)
+                        var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+
+                        // 2. Logic chọn ảnh theo Quyền (Role)
+                        string photoPath;
+
+                        // Nếu trong danh sách quyền có 'admin'
+                        if (User.IsInRole("admin"))
+                        {
+                            // Đường dẫn ảnh cho Admin
+                            photoPath = Url.Content("~/lib/adminlte/assets/img/19.jpg");
+                        }
+                        else
+                        {
+                            // Đường dẫn ảnh cho Nhân viên
+                            photoPath = Url.Content("~/images/employees/Employees1.jpg");
+                        }
+                    }
+                    <img src="@photoPath" class="user-image rounded-circle shadow" alt="User Image" />
+                    <span class="d-none d-md-inline">@displayName</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                    <li class="user-header text-bg-primary">
+                        <img src="@photoPath" class="rounded-circle shadow" alt="User Image" />
+                        <p>
+                            @displayName
+                            <small>
+                                @* CÁCH CHUẨN: Kiểm tra quyền Admin bằng hàm IsInRole *@
+                                @if (User.IsInRole("admin"))
+                                {
+                                    <span class="badge bg-danger">Quản trị viên</span>
+                                }
+                                else
+                                {
+                                    <span>[ Nhân viên ]</span>
+                                }
+                            </small>
+                        </p>
+                    </li>
+                    <li class="user-footer">
+                        <a href="~/Account/ChangePassword" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                        <a href="~/Account/Logout" class="btn btn-default btn-flat float-end">Thoát</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>

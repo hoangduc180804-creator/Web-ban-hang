@@ -1,0 +1,72 @@
+﻿@model dynamic
+@{
+    Layout = null;
+    // Kiểm tra xem là Đơn hàng trong DB hay Giỏ hàng trong Session
+    bool isOrderDetail = false;
+    try { isOrderDetail = Model.OrderID > 0; } catch { }
+
+    // Xác định URL thực hiện xóa
+    // Nếu là Đơn hàng thật -> gọi Action DeleteDetail (xóa trong SQL)
+    // Nếu là Giỏ hàng tạm -> gọi Action RemoveFromCart (xóa trong Session)
+    string actionUrl = isOrderDetail
+        ? $"~/Order/DeleteDetail/{Model.OrderID}?productId={Model.ProductID}"
+        : $"~/Order/RemoveFromCart/{Model.ProductID}";
+}
+
+<div class="modal-header text-bg-danger">
+    <strong class="modal-title">
+        <i class="bi bi-trash"></i> Xóa mặt hàng khỏi đơn hàng
+    </strong>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+@* Form gửi yêu cầu xóa *@
+<form id="formDeleteCartItem" action="@Url.Content(actionUrl)" method="get">
+    <div class="modal-body">
+        <div class="alert alert-danger d-flex align-items-center mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+                Bạn có muốn xóa mặt hàng <strong>@Model.ProductName</strong> ra khỏi đơn hàng không?
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-check"></i> Chấp nhận
+        </button>
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">
+            Đóng
+        </button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $("#formDeleteCartItem").on("submit", function (e) {
+            e.preventDefault();
+            var url = $(this).attr("action");
+
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function (res) {
+                    // Nếu là xóa trong Đơn hàng thật (trang Detail)
+                    if ("@isOrderDetail" === "True") {
+                        // Tải lại trang để cập nhật lại tổng tiền, thuế, v.v... từ SQL
+                        window.location.reload();
+                    } else {
+                        // Nếu là xóa trong Giỏ hàng (trang ShowCart)
+                        $("#showCart").html(res);
+                        $("#dialogModal").modal("hide");
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi thực hiện xóa mặt hàng.");
+                }
+            });
+        });
+    });
+</script>

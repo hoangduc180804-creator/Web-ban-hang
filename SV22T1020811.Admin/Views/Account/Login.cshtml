@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = null;
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>DUC Shop | Đăng nhập</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <link rel="stylesheet" href="~/lib/overlay-scrollbars/overlayscrollbars.min.css">
+    <link rel="stylesheet" href="~/lib/bootstrap/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/adminlte/css/adminlte.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body class="login-page bg-body-secondary">
+    <div class="login-box">
+        <div class="login-logo">
+            <a><b>DUC</b> Shop</a>
+        </div>
+        <div class="card">
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">Đăng nhập vào hệ thống quản trị</p>
+
+                @* 1. Cập nhật action trỏ về Account/Login *@
+                <form action="~/Account/Login" method="post">
+
+                    @* 2. Chống tấn công giả mạo (CSRF) *@
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group mb-3">
+                        @* 3. Thêm name="username" và sửa type thành text (hoặc giữ email tùy bạn) *@
+                        <input type="text" name="username" class="form-control" placeholder="Email hoặc Tên đăng nhập" autofocus required />
+                        <div class="input-group-text"><span class="bi bi-envelope"></span></div>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        @* 4. Thêm name="password" *@
+                        <input type="password" name="password" class="form-control" placeholder="Mật khẩu" required />
+                        <div class="input-group-text"><span class="bi bi-lock-fill"></span></div>
+                    </div>
+
+                    @* 5. Hiển thị lỗi từ ModelState (như: sai mật khẩu, thiếu thông tin) *@
+                    <div class="mb-3 text-danger">
+                        @Html.ValidationSummary(true)
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/overlay-scrollbars/overlayscrollbars.browser.es6.min.js"></script>
+    <script src="~/lib/popperjs/popper.min.js"></script>
+    <script src="~/lib/bootstrap/bootstrap.bundle.min.js"></script>
+    <script type="module" src="~/lib/adminlte/js/adminlte.js"></script>
+</body>
+</html>

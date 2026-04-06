@@ -1,0 +1,34 @@
+﻿@model int
+@{
+    Layout = null;
+}
+@* Form gửi dữ liệu về Action Accept với phương thức POST kèm theo mã đơn hàng *@
+<form action="~/Order/Accept/@Model" method="post" id="formAccept">
+    <div class="modal-header text-bg-info">
+        <strong class="modal-title">
+            <i class="bi bi-check2-square me-2"></i>Duyệt chấp nhận đơn hàng
+        </strong>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+
+    <div class="modal-body text-center">
+        <div class="alert alert-info d-flex align-items-center">
+            <i class="bi bi-info-circle fs-4 me-3"></i>
+            <div class="text-start">
+                Bạn có chắc chắn muốn <strong>duyệt và chấp nhận</strong> đơn hàng này không?
+            </div>
+        </div>
+        <p class="text-muted small mb-0">Hành động này sẽ chuyển trạng thái đơn hàng sang "Đã duyệt".</p>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i> Chấp nhận
+        </button>
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">
+            Đóng
+        </button>
+    </div>
+</form>

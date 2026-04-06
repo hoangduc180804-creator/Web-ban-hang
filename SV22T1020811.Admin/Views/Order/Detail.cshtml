@@ -1,0 +1,230 @@
+﻿@using SV22T1020811.Models.Sales
+@model SV22T1020811.Models.Sales.OrderDetailModel
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+}
+
+@section PageToolBar {
+    <div class="btn-group">
+        <button type="button"
+                class="btn btn-primary dropdown-toggle"
+                data-bs-toggle="dropdown">
+            <i class="bi bi-gear me-1"></i>
+            Xử lý đơn hàng
+        </button>
+        <ul class="dropdown-menu">
+            @* Duyệt đơn hàng: Chỉ sáng khi đơn hàng là New (1) *@
+            <li>
+                <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.New ? "" : "disabled text-muted")"
+                   href="~/Order/Accept/@Model.Order.OrderID">Duyệt đơn hàng</a>
+            </li>
+
+            @* Chuyển giao hàng: Chỉ sáng khi đơn hàng là Accepted (2) *@
+            <li>
+                <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.Accepted ? "" : "disabled text-muted")"
+                   href="~/Order/Shipping/@Model.Order.OrderID">Chuyển giao hàng</a>
+            </li>
+
+            @* Hoàn tất đơn hàng: Chỉ sáng khi đơn hàng là Shipping (3) *@
+            <li>
+                <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.Shipping ? "" : "disabled text-muted")"
+                   href="~/Order/Finish/@Model.Order.OrderID">Hoàn tất đơn hàng</a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            @* Hủy đơn hàng: Sáng khi chưa hoàn tất/từ chối (New, Accepted, Shipping) *@
+            <li>
+                <a class="dropdown-item text-danger open-modal @(Model.Order.Status == OrderStatusEnum.Completed || Model.Order.Status == OrderStatusEnum.Rejected ? "disabled text-muted" : "")"
+                   href="~/Order/Cancel/@Model.Order.OrderID">Hủy đơn hàng</a>
+            </li>
+
+            @* Từ chối đơn hàng: Chỉ sáng khi đơn hàng là New (1) *@
+            <li>
+                <a class="dropdown-item text-danger open-modal @(Model.Order.Status == OrderStatusEnum.New ? "" : "disabled text-muted")"
+                   href="~/Order/Reject/@Model.Order.OrderID">Từ chối đơn hàng</a>
+            </li>
+        </ul>
+    </div>
+
+    @* Nút Xóa: Chỉ cho phép xóa khi đơn hàng ở trạng thái đóng hoặc mới lập *@
+    <a href="~/Order/Delete/@Model.Order.OrderID"
+       class="btn btn-danger ms-1 open-modal @(Model.Order.Status == OrderStatusEnum.New || Model.Order.Status == OrderStatusEnum.Cancelled || Model.Order.Status == OrderStatusEnum.Rejected ? "" : "disabled")">
+        <i class="bi bi-trash"></i>
+        Xóa
+    </a>
+
+    <a href="~/Order" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show mb-3">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="alert alert-success d-flex align-items-center mb-3">
+    <i class="bi bi-check-circle-fill fs-4 me-2"></i>
+    <div>
+        <strong>Trạng thái đơn hàng:</strong>
+        @Model.Order.Status.GetDescription()
+        @if (Model.Order.FinishedTime.HasValue)
+        {
+            <span> lúc <b>@Model.Order.FinishedTime.Value.ToString("dd/MM/yyyy HH:mm")</b></span>
+        }
+    </div>
+</div>
+
+<div class="card card-primary card-outline mb-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="bi bi-receipt me-2"></i> Thông tin đơn hàng</h5>
+    </div>
+    <div class="card-body ps-4 pe-4">
+        <div class="row mb-2">
+            <div class="col-md-3 fw-bold">Mã đơn hàng</div>
+            <div class="col-md-3">@Model.Order.OrderID</div>
+            <div class="col-md-3 fw-bold">Ngày lập</div>
+            <div class="col-md-3">@Model.Order.OrderTime.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 fw-bold">Nhân viên phụ trách</div>
+            <div class="col-md-3">@Model.Order.EmployeeName</div>
+            <div class="col-md-3 fw-bold">Ngày nhận đơn</div>
+            <div class="col-md-3">@(Model.Order.AcceptTime?.ToString("dd/MM/yyyy HH:mm") ?? "")</div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-info card-outline mb-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="bi bi-person me-2"></i> Thông tin khách hàng</h5>
+    </div>
+    <div class="card-body ps-4 pe-4">
+        <div class="row mb-2">
+            <div class="col-md-3 fw-bold">Khách hàng</div>
+            <div class="col-md-3">@Model.Order.CustomerName</div>
+            <div class="col-md-3 fw-bold">Tên giao dịch</div>
+            <div class="col-md-3">@Model.Order.CustomerContactName</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-3 fw-bold">Email</div>
+            <div class="col-md-9">@Model.Order.CustomerEmail</div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 fw-bold">Địa chỉ</div>
+            <div class="col-md-9">@Model.Order.CustomerAddress</div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-success card-outline mb-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="bi bi-truck me-2"></i> Thông tin giao hàng</h5>
+    </div>
+    <div class="card-body ps-4 pe-4">
+        <div class="row mb-2">
+            <div class="col-md-3 fw-bold">Người giao hàng</div>
+            <div class="col-md-3">@Model.Order.ShipperName</div>
+            <div class="col-md-3 fw-bold">Điện thoại</div>
+            <div class="col-md-3">@Model.Order.ShipperPhone</div>
+        </div>
+        <div class="row mb-2">
+            <div class="col-md-3 fw-bold">Địa chỉ giao hàng</div>
+            <div class="col-md-9">@Model.Order.DeliveryAddress</div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 fw-bold">Tỉnh / Thành</div>
+            <div class="col-md-9">@Model.Order.DeliveryProvince</div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-secondary card-outline">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="bi bi-box-seam me-2"></i> Danh sách mặt hàng</h5>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-secondary text-center">
+                <tr>
+                    <th>STT</th>
+                    <th>Tên hàng</th>
+                    <th>ĐVT</th>
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Thành tiền</th>
+                    <th style="width:90px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int stt = 1; decimal sumOrderTotal = 0;
+                }
+                @foreach (var item in Model.Details)
+                {
+                    decimal subTotal = item.Quantity * item.SalePrice;
+                    sumOrderTotal += subTotal;
+                    <tr>
+                        <td class="text-center">@(stt++)</td>
+                        <td>@item.ProductName</td>
+                        <td class="text-center">@item.Unit</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">@item.SalePrice.ToString("N0")</td>
+                        <td class="text-end">@subTotal.ToString("N0")</td>
+                        <td class="text-end text-nowrap">
+                            @* Chỉ cho phép Sửa/Xóa mặt hàng nếu đơn hàng chưa duyệt/giao/hoàn tất *@
+                            @if (Model.Order.Status == OrderStatusEnum.New)
+                            {
+                                <a href="~/Order/EditCartItem/@item.OrderID?productId=@item.ProductID"
+                                   class="btn btn-sm btn-primary open-modal">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="~/Order/DeleteCartItem/@item.OrderID?productId=@item.ProductID"
+                                   class="btn btn-sm btn-danger open-modal">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-secondary disabled"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-secondary disabled ms-1"><i class="bi bi-trash"></i></button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="5" class="text-end">Tổng cộng</th>
+                    <th class="text-end">@sumOrderTotal.ToString("N0")</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-body .row {
+            border-bottom: 1px dotted #dee2e6;
+            padding: 8px 0;
+        }
+
+            .card-body .row:last-child {
+                border-bottom: none;
+            }
+        /* Style cho link bị disable trong dropdown */
+        .dropdown-item.disabled {
+            pointer-events: none;
+            background-color: transparent;
+            opacity: 0.5;
+        }
+    </style>
+}

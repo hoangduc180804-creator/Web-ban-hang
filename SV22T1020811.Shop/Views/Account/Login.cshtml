@@ -1,0 +1,90 @@
+﻿@model SV22T1020811.Shop.Models.LoginViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<main class="flex-grow flex items-center justify-center py-12 px-4 md:px-8">
+    <div class="max-w-6xl w-full flex flex-col md:flex-row h-full md:min-h-[700px] overflow-hidden rounded-3xl bg-white shadow-xl border border-slate-100">
+        <div class="hidden md:flex relative w-1/2 overflow-hidden">
+            <img alt="Lifestyle" class="absolute inset-0 w-full h-full object-cover" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop" />
+            <div class="absolute inset-0 bg-primary/20 backdrop-brightness-75 flex flex-col justify-end p-12">
+                <div class="glass-panel p-8 rounded-2xl border border-white/20 text-white">
+                    <h1 class="font-headline text-3xl font-extrabold mb-4 tracking-tight">DUC.Shop</h1>
+                    <p class="text-white/90 text-lg leading-relaxed font-medium">
+                        Chào mừng bạn trở lại. Hãy đăng nhập để tiếp tục trải nghiệm mua sắm tuyệt vời cùng chúng tôi.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-1/2 flex flex-col justify-center items-center p-8 md:p-16 bg-white">
+            <div class="w-full max-w-sm">
+                <div class="mb-10 space-y-2 text-center md:text-left">
+                    <div class="md:hidden mb-8">
+                        <span class="font-headline text-2xl font-extrabold text-primary">DUC.Shop</span>
+                    </div>
+                    <h2 class="font-headline text-3xl font-extrabold text-slate-900 tracking-tight">Chào mừng trở lại</h2>
+                    <p class="text-slate-500 text-sm">Vui lòng nhập thông tin để truy cập tài khoản.</p>
+                </div>
+
+                <div class="flex gap-4 mb-8">
+                    <button class="flex-1 py-3 px-4 flex items-center justify-center gap-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all active:scale-95">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                        <span class="text-sm font-bold">Google</span>
+                    </button>
+                    <button class="flex-1 py-3 px-4 flex items-center justify-center gap-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all active:scale-95">
+                        <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" class="w-5 h-5" alt="Facebook">
+                        <span class="text-sm font-bold">Facebook</span>
+                    </button>
+                </div>
+
+                <div class="relative mb-8 text-center">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+                    <span class="relative bg-white px-4 text-[10px] font-bold text-slate-400 tracking-widest uppercase">HOẶC</span>
+                </div>
+
+                <form asp-action="Login" method="post" class="space-y-6">
+                    @Html.AntiForgeryToken()
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">Địa chỉ Email</label>
+                        <input asp-for="Username" class="w-full h-14 bg-slate-50 border-none rounded-2xl px-4 text-slate-900 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="name@email.com" />
+                        <span asp-validation-for="Username" class="text-error text-xs"></span>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center px-1">
+                            <label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Mật khẩu</label>
+                            <a class="text-xs font-bold text-primary hover:underline" href="#">Quên mật khẩu?</a>
+                        </div>
+                        <div class="relative">
+                            <input asp-for="Password" type="password" class="w-full h-14 bg-slate-50 border-none rounded-2xl px-4 text-slate-900 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="••••••••" />
+                            <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-error text-xs"></span>
+                    </div>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+                            @Html.ValidationSummary(true)
+                        </div>
+                    }
+
+                    <button class="w-full h-14 signature-gradient text-white font-bold rounded-full shadow-lg shadow-blue-200 active:scale-95 transition-all hover:brightness-110" type="submit">
+                        Đăng Nhập
+                    </button>
+                </form>
+
+                <div class="mt-10 text-center">
+                    <p class="text-sm text-slate-500 font-medium">
+                        Chưa có tài khoản?
+                        <a asp-action="Register" class="text-primary font-bold hover:underline ml-1">Tạo tài khoản mới</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

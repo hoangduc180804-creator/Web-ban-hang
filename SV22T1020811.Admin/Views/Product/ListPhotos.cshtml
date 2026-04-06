@@ -1,0 +1,92 @@
+﻿@model int
+@{
+    Layout = null;
+    // Gọi Service lấy danh sách ảnh của mặt hàng dựa vào Model (ProductID)
+    var photos = await SV22T1020811.BusinessLayers.CatalogDataService.ListPhotosAsync(Model);
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-info card-outline mt-4">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 id="photos" class="mb-0 fw-bold">
+                            <i class="bi bi-images me-2"></i>
+                            Thư viện ảnh
+                        </h6>
+                    </div>
+                    <div class="col text-end">
+                        <a class="btn btn-sm btn-primary" href="~/Product/CreatePhoto/@Model">
+                            <i class="bi bi-plus-circle me-1"></i>
+                            Thêm ảnh
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-1">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th style="width:120px" class="text-center">Ảnh</th>
+                            <th>Mô tả / Tiêu đề</th>
+                            <th style="width:100px" class="text-center">Thứ tự</th>
+                            <th style="width:100px" class="text-center">Trạng thái</th>
+                            <th style="width:100px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (photos != null && photos.Any())
+                        {
+                            foreach (var item in photos)
+                            {
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "nophoto.png" : item.Photo)"
+                                             class="img-thumbnail"
+                                             style="max-height:70px; max-width:100px; object-fit: cover;"
+                                             onerror="this.src='/images/products/nophoto.png'" />
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="fw-semibold">@item.Description</span>
+                                    </td>
+                                    <td class="text-center align-middle">@item.DisplayOrder</td>
+                                    <td class="text-center align-middle">
+                                        @if (item.IsHidden)
+                                        {
+                                            <span class="badge bg-secondary"><i class="bi bi-eye-slash me-1"></i>Ẩn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success"><i class="bi bi-eye me-1"></i>Hiện</span>
+                                        }
+                                    </td>
+                                    <td class="text-center text-nowrap align-middle">
+                                        @* Nút Sửa: Truyền ProductID qua path và PhotoID qua QueryString *@
+                                        <a class="btn btn-sm btn-primary" href="~/Product/EditPhoto/@Model?photoId=@item.PhotoID" title="Sửa thông tin ảnh">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        @* Nút Xóa: Xác nhận trước khi xóa *@
+                                        <a class="btn btn-sm btn-danger" href="~/Product/DeletePhoto/@Model?photoId=@item.PhotoID" onclick="return confirm('Bạn có chắc chắn muốn xóa ảnh này?')" title="Xóa ảnh">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Chưa có hình ảnh nào cho mặt hàng này.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

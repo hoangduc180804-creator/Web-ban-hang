@@ -1,0 +1,33 @@
+﻿<div class="card card-primary mt-3">
+    <div class="card-header"><h3 class="card-title">@ViewBag.Title</h3></div>
+    <form action="~/Employee/Save" method="post" enctype="multipart/form-data">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label class="fw-bold">Họ và tên:</label>
+                        <input type="text" class="form-control" name="FullName" autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Ngày sinh:</label>
+                        <input type="date" class="form-control" name="BirthDate">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Điện thoại:</label>
+                        <input type="text" class="form-control" name="Phone">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="fw-bold">Ảnh đại diện:</label>
+                        <input type="file" class="form-control" name="Photo">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Lưu nhân viên</button>
+            <a href="~/Employee" class="btn btn-default">Quay lại</a>
+        </div>
+    </form>
+</div>

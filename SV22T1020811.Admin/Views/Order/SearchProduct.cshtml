@@ -1,0 +1,63 @@
+﻿@model SV22T1020811.Models.Common.PagedResult<SV22T1020811.Models.Catalog.Product>
+@{
+    Layout = null;
+}
+
+@foreach (var item in Model.DataItems)
+{
+    <form action="~/Order/AddToCart" method="post" class="ajax-add-to-cart border rounded p-2 mb-2 shadow-sm bg-light">
+        <input type="hidden" name="ProductID" value="@item.ProductID" />
+        <input type="hidden" name="ProductName" value="@item.ProductName" />
+        <input type="hidden" name="Unit" value="@item.Unit" />
+        <input type="hidden" name="Photo" value="@item.Photo" />
+
+        <strong class="text-primary d-block text-truncate" title="@item.ProductName">@item.ProductName</strong>
+
+        <div class="row mt-2 align-items-end">
+            <div class="col-4 text-center">
+                <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "demo.png" : item.Photo)"
+                     class="img-fluid border rounded" style="height:70px; object-fit: cover;" />
+            </div>
+            <div class="col-8">
+                <div class="row g-2">
+                    <div class="col-7">
+                        <label class="form-label mb-0 small fw-semibold text-muted">Giá bán</label>
+                        @* Hiển thị giá đã định dạng nhưng dùng name="SalePrice" để Controller nhận diện *@
+                        <input type="text" class="form-control form-control-sm text-end fw-bold"
+                               name="SalePrice"
+                               value="@item.Price.ToString("N0")" readonly />
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label mb-0 small fw-semibold text-muted">SL</label>
+                        <input type="number" name="Quantity" min="1" value="1"
+                               class="form-control form-control-sm text-center" />
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-sm btn-primary mt-2 w-100">
+                    <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                </button>
+            </div>
+        </div>
+    </form>
+}
+
+@if (Model.PageCount > 1)
+{
+    <div class="mt-2">
+        <ul class="pagination pagination-sm justify-content-center mb-0">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                <a class="page-link" href="javascript:;" onclick="doSearchProduct(@(Model.Page - 1))">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link text-dark">Trang @Model.Page / @Model.PageCount</span>
+            </li>
+            <li class="page-item @(Model.Page >= Model.PageCount ? "disabled" : "")">
+                <a class="page-link" href="javascript:;" onclick="doSearchProduct(@(Model.Page + 1))">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+}

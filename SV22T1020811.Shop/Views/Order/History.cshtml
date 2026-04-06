@@ -1,0 +1,166 @@
+﻿@model SV22T1020811.Models.Common.PagedResult<SV22T1020811.Models.Sales.OrderViewInfo>
+@{
+    ViewData["Title"] = "Lịch sử mua hàng";
+    // Lấy searchValue từ ViewBag để dùng lại trong link phân trang
+    string searchValue = ViewBag.SearchValue ?? "";
+}
+
+<main class="pt-28 pb-20 px-6 max-w-7xl mx-auto min-h-screen font-sans">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+        <aside class="md:col-span-3">
+            @await Html.PartialAsync("_SidebarProfile")
+        </aside>
+
+        <div class="md:col-span-9 space-y-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tighter">Đơn hàng của tôi</h2>
+                @if (!string.IsNullOrEmpty(searchValue))
+                {
+                    <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+                        Kết quả cho: "@searchValue"
+                    </span>
+                }
+            </div>
+
+            <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50/50 text-[11px] uppercase font-bold text-slate-400 tracking-widest">
+                            <tr>
+                                <th class="px-8 py-6">Mã đơn</th>
+                                <th class="px-6 py-6 text-center">Ngày đặt</th>
+                                <th class="px-6 py-6 text-center">Tổng tiền</th>
+                                <th class="px-6 py-6 text-center">Trạng thái</th>
+                                <th class="px-8 py-6 text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            @if (Model.DataItems != null && Model.DataItems.Any())
+                            {
+                                @foreach (var item in Model.DataItems)
+                                {
+                                    <tr class="hover:bg-slate-50/80 transition-all cursor-pointer group"
+                                        onclick="location.href='/Order/Details/@item.OrderID'">
+                                        <td class="px-8 py-5 font-bold text-[#00497d]">#@item.OrderID</td>
+                                        <td class="px-6 py-5 text-center text-sm text-slate-500 font-medium">
+                                            @item.OrderTime.ToString("dd/MM/yyyy HH:mm")
+                                        </td>
+                                        <td class="px-6 py-5 text-center font-black text-slate-900">
+                                            @item.SumOrderTotal.ToString("N0") <ins class="no-underline text-[10px]">đ</ins>
+                                        </td>
+                                        <td class="px-6 py-5 text-center">
+                                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase bg-blue-50 text-[#00497d] ring-1 ring-inset ring-blue-100">
+                                                @item.StatusDescription
+                                            </span>
+                                        </td>
+                                        <td class="px-8 py-5 text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                @if (item.Status == SV22T1020811.Models.Sales.OrderStatusEnum.New)
+                                                {
+                                                    <a href="/Order/Edit/@item.OrderID"
+                                                       onclick="event.stopPropagation();"
+                                                       class="p-2 hover:bg-blue-50 text-blue-600 rounded-xl transition-all hover:scale-110" title="Sửa đơn hàng">
+                                                        <span class="material-symbols-outlined text-[20px]">edit_square</span>
+                                                    </a>
+
+                                                    <a href="/Order/EditShipping/@item.OrderID"
+                                                       onclick="event.stopPropagation();"
+                                                       class="p-2 hover:bg-amber-50 text-amber-600 rounded-xl transition-all hover:scale-110" title="Sửa địa chỉ giao">
+                                                        <span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                                                    </a>
+
+                                                    <a href="/Order/Delete/@item.OrderID"
+                                                       onclick="event.stopPropagation(); return confirm('Đức có chắc chắn muốn xóa đơn hàng #@item.OrderID không?')"
+                                                       class="p-2 hover:bg-red-50 text-red-600 rounded-xl transition-all hover:scale-110" title="Xóa đơn hàng">
+                                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="material-symbols-outlined text-slate-300 group-hover:text-[#00497d] transition-colors">arrow_forward</span>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="px-8 py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <span class="material-symbols-outlined text-6xl text-slate-200">shopping_bag</span>
+                                            <p class="text-slate-400 font-bold">Đức chưa có đơn hàng nào.</p>
+                                            <a href="~/" class="mt-2 px-6 py-3 bg-[#00497d] text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:shadow-lg transition-all">
+                                                Tiếp tục mua sắm
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @* PHẦN PHÂN TRANG *@
+                @if (Model.PageCount > 1)
+                {
+                    <div class="px-8 py-8 bg-slate-50/30 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                            Trang @Model.Page trong tổng số @Model.PageCount
+                        </p>
+
+                        <div class="flex items-center gap-2">
+                            @* Nút lùi trang *@
+                            @if (Model.Page > 1)
+                            {
+                                <a href="~/Order/History?page=@(Model.Page - 1)&searchValue=@searchValue"
+                                   class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:border-[#00497d] hover:text-[#00497d] transition-all shadow-sm">
+                                    <span class="material-symbols-outlined text-sm font-bold">chevron_left</span>
+                                </a>
+                            }
+
+                            @* Danh sách các số trang *@
+                            <div class="flex items-center gap-1.5">
+                                @for (int p = 1; p <= Model.PageCount; p++)
+                                {
+                                    // Logic: Luôn hiện trang 1, trang cuối, và bán kính 2 quanh trang hiện tại
+                                    if (p == 1 || p == Model.PageCount || (p >= Model.Page - 2 && p <= Model.Page + 2))
+                                    {
+                                        if (p == Model.Page)
+                                        {
+                                            <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#00497d] text-white font-black shadow-xl shadow-blue-100 scale-110">
+                                                @p
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a href="~/Order/History?page=@p&searchValue=@searchValue"
+                                               class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all font-bold text-sm">
+                                                @p
+                                            </a>
+                                        }
+                                    }
+                                    // Hiển thị dấu "..."
+                                    else if (p == Model.Page - 3 || p == Model.Page + 3)
+                                    {
+                                        <span class="px-1 text-slate-300 font-black">...</span>
+                                    }
+                                }
+                            </div>
+
+                            @* Nút tiến trang *@
+                            @if (Model.Page < Model.PageCount)
+                            {
+                                <a href="~/Order/History?page=@(Model.Page + 1)&searchValue=@searchValue"
+                                   class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:border-[#00497d] hover:text-[#00497d] transition-all shadow-sm">
+                                    <span class="material-symbols-outlined text-sm font-bold">chevron_right</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</main>

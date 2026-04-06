@@ -1,0 +1,78 @@
+﻿@model SV22T1020811.Models.Catalog.ProductAttribute
+@{
+}
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu thuộc tính
+    </button>
+
+    @* Quay lại trang Edit của sản phẩm và nhảy đến đúng phần attributes *@
+    <a href="~/Product/Edit/@Model.ProductID#attributes" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-outline card-success">
+            <div class="card-header">
+                <h5 class="mb-0">@ViewBag.Title</h5>
+            </div>
+
+            <div class="card-body">
+                @* Form gửi về action SaveAttribute *@
+                <form id="formEdit" action="~/Product/SaveAttribute" method="post">
+
+                    @* Hai trường ẩn cực kỳ quan trọng *@
+                    <input type="hidden" name="AttributeID" value="@Model.AttributeID" />
+                    <input type="hidden" name="ProductID" value="@Model.ProductID" />
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 fw-semibold">
+                            Tên thuộc tính
+                        </label>
+                        <div class="col-sm-9">
+                            <input type="text"
+                                   name="AttributeName"
+                                   value="@Model.AttributeName"
+                                   class="form-control"
+                                   placeholder="Ví dụ: Màu sắc, Kích thước"
+                                   required autofocus />
+                            @Html.ValidationMessage("AttributeName", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 fw-semibold">
+                            Giá trị thuộc tính
+                        </label>
+                        <div class="col-sm-9">
+                            <input type="text"
+                                   name="AttributeValue"
+                                   value="@Model.AttributeValue"
+                                   class="form-control"
+                                   placeholder="Ví dụ: Đỏ, XL, 500g"
+                                   required />
+                            @Html.ValidationMessage("AttributeValue", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <label class="col-sm-3 fw-semibold">
+                            Thứ tự hiển thị
+                        </label>
+                        <div class="col-sm-3">
+                            <input type="number"
+                                   name="DisplayOrder"
+                                   value="@Model.DisplayOrder"
+                                   class="form-control"
+                                   min="1" />
+                            @Html.ValidationMessage("DisplayOrder", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

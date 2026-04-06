@@ -1,0 +1,56 @@
+﻿@{
+    Layout = null;
+}
+<div class="modal-header text-bg-danger">
+    <strong class="modal-title">
+        <i class="bi bi-trash3-fill"></i> Xóa giỏ hàng
+    </strong>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+@* Form gửi yêu cầu làm trống giỏ hàng *@
+<form id="formClearCart" action="~/Order/ClearCart" method="get">
+    <div class="modal-body">
+        <div class="alert alert-danger d-flex align-items-center mb-0">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <div>
+                Bạn có chắc chắn muốn **xóa tất cả** các mặt hàng trong giỏ hàng không? Thao tác này không thể hoàn tác.
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-check-lg"></i> Chấp nhận xóa hết
+        </button>
+        <button type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal">
+            Đóng
+        </button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        // Xử lý làm trống giỏ hàng bằng AJAX
+        $("#formClearCart").on("submit", function (e) {
+            e.preventDefault();
+            var url = $(this).attr("action");
+
+            $.ajax({
+                url: url,
+                type: "GET", // Khớp với hàm ClearCart() trong Controller của bạn
+                success: function (res) {
+                    // Nạp lại PartialView giỏ hàng trống vào Cột 8
+                    $("#showCart").html(res);
+                    // Đóng modal
+                    $("#dialogModal").modal("hide");
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi làm sạch giỏ hàng.");
+                }
+            });
+        });
+    });
+</script>

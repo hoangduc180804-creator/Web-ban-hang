@@ -1,0 +1,115 @@
+﻿@using SV22T1020811.Shop.AppCodes
+@using SV22T1020811.Models.Sales
+@{
+    // 1. Lấy danh sách giỏ hàng từ Session
+    var cart = Context.Session.GetObjectFromJson<List<CartItem>>("MyCart") ?? new List<CartItem>();
+
+    // 2. Tính tổng số lượng sản phẩm
+    var cartCount = cart.Sum(i => i.Quantity);
+}
+
+<nav class="fixed top-0 w-full z-50 glass-nav shadow-sm border-b border-slate-100 bg-white/90 backdrop-blur-md">
+    <div class="flex items-center justify-between px-4 md:px-8 h-20 max-w-[1600px] mx-auto">
+
+        <div class="flex items-center space-x-12">
+            <a href="~/" class="text-2xl font-extrabold text-[#00497d] font-headline tracking-tight">DUC.Shop</a>
+
+            <div class="hidden lg:flex items-center space-x-8 font-headline font-semibold">
+                @* Trang chủ *@
+                <a class="text-[#00497d] border-b-2 border-[#00497d] pb-1 transition-all" href="~/">Trang chủ</a>
+
+                @* Dropdown Danh mục lấy từ CSDL *@
+                <div class="relative group">
+                    <button class="flex items-center gap-1 text-slate-600 group-hover:text-[#00497d] transition-all pb-1 cursor-pointer font-bold outline-none">
+                        Danh mục
+                        <span class="material-symbols-outlined text-sm">expand_more</span>
+                    </button>
+
+                    <div class="absolute left-0 mt-2 w-72 bg-white rounded-[24px] shadow-xl border border-slate-100 py-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left group-hover:translate-y-0 translate-y-2">
+                        <div class="px-5 py-2 mb-2 border-b border-slate-50">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tất cả danh mục</p>
+                        </div>
+
+                        <ul class="px-2 space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar">
+                            @* Link Tất cả sản phẩm *@
+                            <li>
+                                <a href="~/" class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-[#00497d] transition-all">
+                                    <span class="text-sm font-bold italic text-[#00497d]">Tất cả sản phẩm</span>
+                                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                                </a>
+                            </li>
+
+                            @* Duyệt danh mục từ CSDL trỏ về Home/Index *@
+                            @if (ViewBag.Categories != null)
+                            {
+                                foreach (var c in ViewBag.Categories)
+                                {
+                                    <li>
+                                        <a href="~/?CategoryID=@c.CategoryID"
+                                           class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-[#00497d] transition-all group/item">
+                                            <span class="text-sm font-bold truncate pr-2">@c.CategoryName</span>
+                                            <span class="material-symbols-outlined text-xs group-hover/item:translate-x-1 transition-transform">chevron_right</span>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4 md:space-x-6">
+            @* Giỏ hàng *@
+            <a href="~/Cart" class="relative group cursor-pointer p-2 flex items-center">
+                <span class="material-symbols-outlined text-slate-600 text-2xl group-hover:text-[#00497d] transition-colors">
+                    shopping_cart
+                </span>
+                <span class="absolute -top-1 -right-1 @(cartCount > 0 ? "bg-[#00497d]" : "bg-slate-300") text-white text-[10px] px-1.5 py-0.5 rounded-full shadow-md min-w-[18px] text-center font-black">
+                    @cartCount
+                </span>
+            </a>
+
+            @if (Context.User.Identity.IsAuthenticated)
+            {
+                <div class="relative group">
+                    <button class="flex items-center gap-2 py-1.5 px-2 rounded-full hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                        <div class="w-9 h-9 rounded-full signature-gradient flex items-center justify-center text-white text-xs font-extrabold shadow-sm border-2 border-white">
+                            @User.Identity.Name?.Substring(0, 1).ToUpper()
+                        </div>
+                        <span class="hidden sm:inline text-sm font-bold text-[#00497d]">@User.Identity.Name</span>
+                        <span class="material-symbols-outlined text-sm text-slate-400">expand_more</span>
+                    </button>
+
+                    <div class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right group-hover:translate-y-0 translate-y-2">
+                        <div class="px-4 py-3 border-b border-slate-50 mb-2">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Đang đăng nhập</p>
+                            <p class="text-sm font-bold text-[#00497d] truncate">@User.Identity.Name</p>
+                        </div>
+                        <div class="space-y-0.5 px-2">
+                            <a href="~/Account/Profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-[#00497d] transition-all">
+                                <span class="material-symbols-outlined text-[20px]">person</span>
+                                <span class="text-sm font-bold">Hồ sơ cá nhân</span>
+                            </a>
+                            <a href="~/Order/History" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-[#00497d] transition-all">
+                                <span class="material-symbols-outlined text-[20px]">package_2</span>
+                                <span class="text-sm font-bold">Đơn mua của tôi</span>
+                            </a>
+                            <a href="~/Account/Logout" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all mt-2 border-t border-slate-50 pt-3">
+                                <span class="material-symbols-outlined text-[20px]">logout</span>
+                                <span class="text-sm font-bold">Đăng xuất</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a href="~/Account/Login" class="flex items-center gap-2 text-slate-600 hover:text-[#00497d] transition-colors">
+                    <span class="material-symbols-outlined text-2xl">account_circle</span>
+                    <span class="hidden sm:inline text-sm font-bold">Đăng nhập</span>
+                </a>
+            }
+        </div>
+    </div>
+</nav>

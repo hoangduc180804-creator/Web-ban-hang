@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Bổ sung nhà cung cấp";
+}
+
+<div class="card card-primary mt-3">
+    <div class="card-header">
+        <h3 class="card-title">@ViewData["Title"]</h3>
+    </div>
+    <form action="~/Supplier/Save" method="post">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label>Tên nhà cung cấp:</label>
+                        <input type="text" class="form-control" name="SupplierName" placeholder="Nhập tên công ty..." autofocus>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Tên giao dịch:</label>
+                        <input type="text" class="form-control" name="ContactName">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Điện thoại:</label>
+                        <input type="text" class="form-control" name="Phone">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label>Email:</label>
+                        <input type="email" class="form-control" name="Email">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Địa chỉ:</label>
+                        <input type="text" class="form-control" name="Address">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Quốc gia:</label>
+                        <select class="form-control" name="Country">
+                            <option value="">-- Chọn quốc gia --</option>
+                            <option value="Viet Nam">Việt Nam</option>
+                            <option value="Japan">Nhật Bản</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-floppy"></i> Lưu mới
+            </button>
+            <a href="~/Supplier" class="btn btn-default">Quay lại</a>
+        </div>
+    </form>
+</div>

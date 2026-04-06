@@ -1,0 +1,83 @@
+﻿@model SV22T1020811.Models.HR.Employee
+@{
+    ViewBag.Title = "Phân quyền nhân viên";
+}
+
+@section PageToolBar {
+    <button type="submit" form="formChangeRole" class="btn btn-primary">
+        <i class="bi bi-shield-check me-1"></i> Lưu phân quyền
+    </button>
+    <a href="~/Employee" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-body">
+                <form id="formChangeRole" action="~/Employee/ChangeRole" method="post">
+                    <input type="hidden" name="id" value="@Model.EmployeeID" />
+
+                    <fieldset class="mb-4">
+                        <legend class="fs-6 text-muted mb-3"><i class="bi bi-person me-1"></i> Thông tin nhân viên</legend>
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Họ và tên</dt>
+                            <dd class="col-sm-9">@Model.FullName</dd>
+                            <dt class="col-sm-3">Email</dt>
+                            <dd class="col-sm-9">@Model.Email</dd>
+                            <dt class="col-sm-3">Trạng thái</dt>
+                            <dd class="col-sm-9">
+                                @if (Model.IsWorking == true)
+                                {
+                                    <span class="badge bg-success">Đang làm việc</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Đã nghỉ việc</span>
+                                }
+                            </dd>
+                        </dl>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend class="fs-6 text-muted mb-3"><i class="bi bi-shield-lock me-1"></i> Danh sách quyền</legend>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover align-middle">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th style="width:60px;" class="text-center">Chọn</th>
+                                        <th>Tên quyền</th>
+                                        <th>Mô tả</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        // Tách chuỗi RoleNames hiện tại để kiểm tra checkbox nào cần tích
+                                        var currentRoles = Model.RoleNames?.Split(',') ?? new string[0];
+                                    }
+                                    <tr>
+                                        <td class="text-center">
+                                            <input class="form-check-input" type="checkbox" name="roles" value="admin"
+                                                   @(currentRoles.Contains("admin") ? "checked" : "") />
+                                        </td>
+                                        <td><b>admin</b></td>
+                                        <td>Quản trị toàn bộ hệ thống</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center">
+                                            <input class="form-check-input" type="checkbox" name="roles" value="employee"
+                                                   @(currentRoles.Contains("employee") ? "checked" : "") />
+                                        </td>
+                                        <td><b>employee</b></td>
+                                        <td>Nhân viên vận hành (Quản lý khách hàng, đơn hàng...)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

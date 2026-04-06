@@ -1,0 +1,143 @@
+﻿@model SV22T1020811.Models.Catalog.Product
+@{
+}
+
+@section PageToolBar {
+    <button type="submit" form="formEdit" class="btn btn-primary">
+        <i class="bi bi-save"></i>
+        Lưu dữ liệu
+    </button>
+
+    <a href="~/Product" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left"></i>
+        Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-box-seam me-2"></i>
+                    @ViewBag.Title
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <form id="formEdit" action="~/Product/Save" method="post" enctype="multipart/form-data">
+                    @* Ẩn ID để dùng cho trường hợp Edit *@
+                    <input type="hidden" name="ProductID" value="@Model.ProductID" />
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Tên mặt hàng</label>
+                        <div class="col-sm-9">
+                            <input type="text" name="ProductName" value="@Model.ProductName"
+                                   class="form-control"
+                                   placeholder="Nhập tên mặt hàng" autofocus />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Loại hàng</label>
+                        <div class="col-sm-3">
+                            <select class="form-select" name="CategoryID">
+                                <option value="0">-- Chọn loại hàng --</option>
+                                @if (ViewBag.Categories != null)
+                                {
+                                    foreach (var item in (IEnumerable<SV22T1020811.Models.Catalog.Category>)ViewBag.Categories)
+                                    {
+                                        <option value="@item.CategoryID" selected="@(item.CategoryID == Model.CategoryID)">
+                                            @item.CategoryName
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <label class="col-sm-2 col-form-label text-end">Nhà cung cấp</label>
+                        <div class="col-sm-4">
+                            <select class="form-select" name="SupplierID">
+                                <option value="0">-- Chọn nhà cung cấp --</option>
+                                @if (ViewBag.Suppliers != null)
+                                {
+                                    foreach (var item in (IEnumerable<SV22T1020811.Models.Partner.Supplier>)ViewBag.Suppliers)
+                                    {
+                                        <option value="@item.SupplierID" selected="@(item.SupplierID == Model.SupplierID)">
+                                            @item.SupplierName
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Đơn vị tính</label>
+                        <div class="col-sm-3">
+                            <input type="text" name="Unit" value="@Model.Unit"
+                                   class="form-control"
+                                   placeholder="cái, hộp, kg..." />
+                        </div>
+
+                        <label class="col-sm-2 col-form-label text-end">Giá</label>
+                        <div class="col-sm-4">
+                            <input type="text"
+                                   name="Price"
+                                   value="@Model.Price.ToString("G29")"
+                                   class="form-control money-input"
+                                   placeholder="Giá bán" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Trạng thái</label>
+                        <div class="col-sm-9">
+                            <div class="form-check form-switch mt-2">
+                                @* Dùng checkbox cho IsSelling *@
+                                <input class="form-check-input" type="checkbox"
+                                       name="IsSelling" id="IsSelling" value="true"
+                                       @(Model.IsSelling ? "checked" : "") />
+                                <label class="form-check-label" for="IsSelling">
+                                    Đang bán
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Ảnh</label>
+                        <div class="col-sm-9">
+                            <input type="file" name="uploadPhoto"
+                                   class="form-control"
+                                   accept="image/*"
+                                   onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0])" />
+                            @* Ẩn tên file ảnh cũ *@
+                            <input type="hidden" name="Photo" value="@Model.Photo" />
+                            <div class="mt-2">
+                                <img id="imgPreview"
+                                     src="~/images/products/@(string.IsNullOrEmpty(Model.Photo) ? "nophoto.png" : Model.Photo)"
+                                     class="img-thumbnail"
+                                     style="max-height: 160px;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label">Mô tả</label>
+                        <div class="col-sm-9">
+                            <textarea name="ProductDescription" class="form-control" rows="3"
+                                      placeholder="Nhập mô tả mặt hàng">@Model.ProductDescription</textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.ProductID > 0)
+{
+    @await Html.PartialAsync("ListPhotos", Model.ProductID)
+    @await Html.PartialAsync("ListAttributes", Model.ProductID)
+}
