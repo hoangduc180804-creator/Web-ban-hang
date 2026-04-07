@@ -58,7 +58,7 @@ namespace SV22T1020811.Admin.Controllers
                 var authProperties = new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7) // Khớp với cấu hình 7 ngày trong Program.cs
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                 };
 
                 // 5. Lưu Cookie và tiến hành đăng nhập
@@ -132,10 +132,7 @@ namespace SV22T1020811.Admin.Controllers
                 string hashedNewPassword = CryptographyUtils.ToMD5(newPassword);
                 await SecurityDataService.ChangePasswordAsync(userName, hashedNewPassword);
             }
-
-
-            // 4. Quan trọng: Để tên mới hiện lên Header ngay lập tức mà không cần Login lại,
-            // Bạn nên Logout hoặc cập nhật lại ClaimsIdentity tại đây.
+           
             ViewBag.Message = "Cập nhật thông tin thành công! Vui lòng đăng nhập lại để làm mới hiển thị.";
             return View();
         }

@@ -61,7 +61,7 @@ namespace SV22T1020811.BusinessLayers
             // Lập đơn hàng mới
             Order data = new Order()
             {
-                // SỬA CHỖ NÀY: Nếu employeeID <= 0 thì gán là null
+                // Nếu employeeID <= 0 thì gán là null
                 EmployeeID = employeeID > 0 ? employeeID : (int?)null,
 
                 CustomerID = customerID,
@@ -161,7 +161,7 @@ namespace SV22T1020811.BusinessLayers
             if (order == null)
                 return false;
 
-            // SỬA CHỖ NÀY: Thêm trạng thái Shipping vào danh sách được phép hủy
+            // Thêm trạng thái Shipping vào danh sách được phép hủy
             if (order.Status != OrderStatusEnum.New &&
                 order.Status != OrderStatusEnum.Accepted &&
                 order.Status != OrderStatusEnum.Shipping)
