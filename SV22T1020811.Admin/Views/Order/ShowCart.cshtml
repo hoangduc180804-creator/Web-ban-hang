@@ -70,11 +70,10 @@
                     </table>
 
                     <div class="text-end">
-                        <a class="btn btn-sm btn-danger mt-2 ajax-link"
-                           href="~/Order/ClearCart"
-                           onclick="return confirm('Bạn có chắc muốn xóa sạch giỏ hàng?')">
-                            <i class="bi bi-trash"></i>
-                            Xóa giỏ hàng
+                        @* MỚI: Gọi Modal xác nhận chuyên nghiệp *@
+                        <a class="btn btn-sm btn-danger mt-2 open-modal"
+                           href="~/Order/ConfirmClearCart">
+                            <i class="bi bi-trash"></i> Xóa giỏ hàng
                         </a>
                     </div>
                 </div>

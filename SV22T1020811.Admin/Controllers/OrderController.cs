@@ -96,16 +96,23 @@ namespace SV22T1020811.Admin.Controllers
             return PartialView("ShowCart", cart);
         }
 
-        public IActionResult ClearCart()
-        {
-            HttpContext.Session.Remove(SHOPPING_CART);
-            LoadDataToViewBag(); // Thêm dòng này
-            return PartialView("ShowCart", new List<CartItem>());
-        }
-        // Hàm này chỉ để hiển thị cái Modal xác nhận lên màn hình
+        // 1. Trả về Modal xác nhận xóa
         public IActionResult ConfirmClearCart()
         {
             return PartialView("ClearCart");
+        }
+
+        // 2. Xử lý xóa sạch giỏ hàng (Gọi qua AJAX)
+        public IActionResult ClearCart()
+        {
+            // Xóa Session giỏ hàng theo đúng Key "ShoppingCart"
+            HttpContext.Session.Remove(SHOPPING_CART);
+
+            // QUAN TRỌNG: Nạp lại ViewBag để các Select Khách hàng/Tỉnh thành không bị trống
+            LoadDataToViewBag();
+
+            // Trả về PartialView giỏ hàng với danh sách rỗng
+            return PartialView("ShowCart", new List<CartItem>());
         }
 
         [HttpPost]
