@@ -157,6 +157,7 @@
 @section Scripts {
     <script>
         function updateQty(id, delta) {
+            // Sử dụng URL chuẩn: /Controller/Action?thamso
             window.location.href = `/Cart/UpdateQuantity?id=${id}&quantity=${delta}`;
         }
     </script>
