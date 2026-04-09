@@ -37,8 +37,6 @@ Dự án được tổ chức theo mô hình phân lớp chuyên nghiệp, tách
 
 ### 🛠 Trang Quản Trị (Admin) - Back-office Mạnh Mẽ
 
-### 🛠 Trang Quản Trị (Admin) - Back-office Mạnh Mẽ
-
 | Dashboard & Tổng Quan | Quản Lý Sản Phẩm (Đa Ảnh) |
 | :--- | :--- |
 | <img width="1919" height="918" alt="image" src="https://github.com/user-attachments/assets/f692ecb6-0895-49ec-a974-5c8f6203a0ff" />| <img width="1919" height="918" alt="image" src="https://github.com/user-attachments/assets/863a32de-ab30-44c4-ac0c-e77858886e6e" />|
