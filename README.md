@@ -23,7 +23,7 @@ Dự án được tổ chức theo mô hình phân lớp chuyên nghiệp, tách
 
 ## 📸 Hình Ảnh Dự Án (Screenshots)
 
-### 🛒 Trang Khách Hàng (Web Shop) - Phong Cách Glassmorphism
+### 🛒 Trang Khách Hàng (Web Shop) 
 
 | Trang Chủ & Danh Sách Sản Phẩm | Chi Tiết Sản Phẩm & Giỏ Hàng (AJAX) |
 | :--- | :--- |
