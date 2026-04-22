@@ -95,74 +95,137 @@
 </div>
 
 <script>
-    $(document).ready(function () {
-        var formSelector = "#@formId";
-        var originalPrice = @Model.SalePrice; // Lưu giá cũ từ Model
+    (function () {
 
-        if (typeof AutoNumeric !== 'undefined') {
-            document.querySelectorAll(formSelector + " .money-input").forEach(element => {
-                new AutoNumeric(element, {
-                    digitGroupSeparator: '.',
-                    decimalCharacter: ',',
-                    decimalPlaces: 0,
-                    unformatOnSubmit: true
-                });
+        // =============================
+        // CHẶN SUBMIT MẶC ĐỊNH + AJAX
+        // =============================
+        $(document).on("submit", "#formUpdateOrderDetail, #formUpdateCartItem", function (e) {
+
+            e.preventDefault();
+            e.stopImmediatePropagation(); // 🔥 chặn tất cả submit khác
+
+            let form = $(this);
+            let actionUrl = form.attr("action");
+            let methodType = form.attr("method") || "POST";
+
+            // =============================
+            // LẤY GIÁ TRỊ GIÁ (XỬ LÝ FORMAT)
+            // =============================
+            let priceInput = form.find("input[name='SalePrice']");
+            let rawPrice = priceInput.val() || "0";
+
+            let cleanPrice = parseFloat(
+                rawPrice.toString().replace(/\./g, '').replace(/,/g, '')
+            ) || 0;
+
+            // Validate
+            if (cleanPrice < 0) {
+                showToast("❌ Giá không được âm!", true);
+                return false;
+            }
+
+            // =============================
+            // CHUẨN BỊ DATA
+            // =============================
+            let formData = form.serializeArray();
+
+            $.each(formData, function (i, field) {
+                if (field.name === "SalePrice") {
+                    field.value = cleanPrice;
+                }
+            });
+
+            // =============================
+            // HIỆN LOADING (OPTIONAL)
+            // =============================
+            let btn = form.find("button[type='submit']");
+            btn.prop("disabled", true).text("Đang xử lý...");
+
+            // =============================
+            // AJAX
+            // =============================
+            $.ajax({
+                url: actionUrl,
+                type: methodType,
+                data: $.param(formData),
+
+                success: function (res) {
+
+                    // =============================
+                    // TRƯỜNG HỢP JSON
+                    // =============================
+                    if (res && typeof res === "object" && res.success !== undefined) {
+
+                        if (res.success === true) {
+                            showToast("✅ Cập nhật thành công!");
+
+                            if (form.attr("id") === "formUpdateOrderDetail") {
+                                setTimeout(() => location.reload(), 800);
+                            } else {
+                                $("#dialogModal").modal("hide");
+                            }
+                        } else {
+                            showToast("❌ " + (res.message || "Cập nhật thất bại"), true);
+                        }
+                    }
+
+                    // =============================
+                    // TRƯỜNG HỢP HTML (GIỎ HÀNG)
+                    // =============================
+                    else if (typeof res === "string") {
+                        $("#showCart").html(res);
+                        $("#dialogModal").modal("hide");
+                        showToast("✅ Cập nhật thành công!");
+                    }
+
+                    // =============================
+                    // KHÔNG XÁC ĐỊNH
+                    // =============================
+                    else {
+                        showToast("❌ Phản hồi không hợp lệ!", true);
+                    }
+                },
+
+                error: function () {
+                    showToast("❌ Lỗi kết nối server!", true);
+                },
+
+                complete: function () {
+                    btn.prop("disabled", false).text("Cập nhật");
+                }
+            });
+
+            return false;
+        });
+
+
+        // =============================
+        // TOAST THÔNG BÁO
+        // =============================
+        function showToast(message, isError) {
+
+            let bg = isError ? "bg-danger" : "bg-success";
+
+            let toast = $(`
+                <div class="toast align-items-center text-white ${bg} border-0 position-fixed top-0 end-0 m-3"
+                     role="alert" style="z-index:9999;">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `);
+
+            $("body").append(toast);
+
+            let bsToast = new bootstrap.Toast(toast[0], { delay: 2000 });
+            bsToast.show();
+
+            toast.on("hidden.bs.toast", function () {
+                toast.remove();
             });
         }
 
-        $(formSelector).on("submit", function (e) {
-            e.preventDefault();
-
-            // Lấy giá trị hiện tại từ AutoNumeric hoặc Input
-            var priceInput = $(this).find("input[name='SalePrice']");
-            var currentPrice = 0;
-
-            if (typeof AutoNumeric !== 'undefined' && AutoNumeric.getAutoNumericElement(priceInput[0])) {
-                currentPrice = AutoNumeric.getAutoNumericElement(priceInput[0]).getNumber();
-            } else {
-                currentPrice = parseFloat(priceInput.val().replace(/\./g, ''));
-            }
-
-            // KIỂM TRA GIÁ ÂM
-            if (currentPrice < 0) {
-                // 1. Hiện thông báo lỗi dưới thanh giá
-                $("#price-error-msg").fadeIn();
-
-                // 2. Khôi phục giá cũ
-                if (typeof AutoNumeric !== 'undefined' && AutoNumeric.getAutoNumericElement(priceInput[0])) {
-                    AutoNumeric.getAutoNumericElement(priceInput[0]).set(originalPrice);
-                } else {
-                    priceInput.val(originalPrice);
-                }
-
-                // 3. Tự động ẩn thông báo sau 3 giây
-                setTimeout(function() {
-                    $("#price-error-msg").fadeOut();
-                }, 3000);
-
-                return false; // Chặn không cho gửi Ajax
-            }
-
-            var action = $(this).attr("action");
-            var method = $(this).attr("method");
-            var data = $(this).serialize();
-
-            $.ajax({
-                url: action,
-                type: method,
-                data: data,
-                success: function (res) {
-                    if ("@isOrderDetail" === "True") {
-                        window.location.reload();
-                    } else {
-                        $("#showCart").html(res);
-                        $("#dialogModal").modal("hide");
-                    }
-                },
-                error: function() {
-                    alert("Có lỗi xảy ra khi cập nhật sản phẩm.");
-                }
-            });
-        });
-    });
+    })();
 </script>

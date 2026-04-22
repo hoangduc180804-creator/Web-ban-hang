@@ -71,21 +71,51 @@ namespace SV22T1020811.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> UpdateDetail(OrderDetail data)
+        {
+            // 1. Kiểm tra dữ liệu đầu vào cơ bản
+            if (data.Quantity <= 0)
+                return Json(new { success = false, message = "Số lượng phải lớn hơn 0." });
+            if (data.SalePrice < 0)
+                return Json(new { success = false, message = "Giá bán không được nhỏ hơn 0." });
+
+            // 2. Gọi Service để cập nhật vào Database
+            // data sẽ tự động mapping các trường OrderID, ProductID, Quantity, SalePrice từ Form gửi lên
+            bool result = await SalesDataService.UpdateDetailAsync(data);
+
+            if (result)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Không thể cập nhật mặt hàng. Có thể đơn hàng đã thay đổi trạng thái." });
+            }
+        }
+
+        [HttpPost]
         public IActionResult AddToCart(CartItem item)
         {
             if (item.Quantity <= 0) return Json("Số lượng không hợp lệ");
+
             var cart = GetCart();
             var existsItem = cart.FirstOrDefault(m => m.ProductID == item.ProductID);
-            if (existsItem == null) cart.Add(item);
-            else { existsItem.Quantity += item.Quantity; existsItem.SalePrice = item.SalePrice; }
+
+            if (existsItem == null)
+            {
+                cart.Add(item);
+            }
+            else
+            {
+                // Thay vì cộng dồn (+=), ta gán trực tiếp giá trị mới từ Modal gửi về
+                existsItem.Quantity = item.Quantity;
+                existsItem.SalePrice = item.SalePrice;
+            }
 
             SaveCart(cart);
-
-            // QUAN TRỌNG: Phải có dòng này thì khi View nạp lại mới có danh sách Khách hàng/Tỉnh thành
             LoadDataToViewBag();
             return PartialView("ShowCart", cart);
         }
-
         public IActionResult RemoveFromCart(int id)
         {
             var cart = GetCart();
