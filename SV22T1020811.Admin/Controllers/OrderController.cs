@@ -227,8 +227,16 @@ namespace SV22T1020811.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateDetail(OrderDetail data)
+        public async Task<IActionResult> UpdateDetail(int orderID, int productID, int quantity, decimal salePrice)
         {
+            // Tạo object mới từ tham số để truyền vào Service
+            var data = new OrderDetail
+            {
+                OrderID = orderID,
+                ProductID = productID,
+                Quantity = quantity,
+                SalePrice = salePrice
+            };
             // 1. Kiểm tra dữ liệu đầu vào cơ bản
             if (data.Quantity <= 0)
                 return Json(new { success = false, message = "Số lượng phải lớn hơn 0." });

@@ -24,7 +24,7 @@
 </div>
 
 <div class="modal-body">
-    <form id="@formId" action="@Url.Content(actionUrl)" method="post" class="container-fluid">
+    <form id="@formId" action="@Url.Content(actionUrl)" method="post" class="container-fluid" onsubmit="return false;">
         @* Các hidden input để giữ thông tin định danh *@
         @if (isOrderDetail)
         {
@@ -95,102 +95,56 @@
 </div>
 
 <script>
-    (function () {
+    (function ($) {
+        // Namespace .SataAction giúp định danh chính xác sự kiện của mình
+        var eventName = "submit.SataAction";
+        $(document).off(eventName, "#formUpdateOrderDetail, #formUpdateCartItem");
 
-        // =============================
-        // CHẶN SUBMIT MẶC ĐỊNH + AJAX
-        // =============================
-        $(document).on("submit", "#formUpdateOrderDetail, #formUpdateCartItem", function (e) {
-
+        $(document).on(eventName, "#formUpdateOrderDetail, #formUpdateCartItem", function (e) {
+            // Chặn tuyệt đối
             e.preventDefault();
-            e.stopImmediatePropagation(); // 🔥 chặn tất cả submit khác
+            e.stopImmediatePropagation();
 
             let form = $(this);
-            let actionUrl = form.attr("action");
-            let methodType = form.attr("method") || "POST";
+            let btn = form.find("button[type='submit']");
+            let isDBUpdate = form.attr("id") === "formUpdateOrderDetail";
 
-            // =============================
-            // LẤY GIÁ TRỊ GIÁ (XỬ LÝ FORMAT)
-            // =============================
-            let priceInput = form.find("input[name='SalePrice']");
-            let rawPrice = priceInput.val() || "0";
+            // Xử lý giá tiền (loại bỏ dấu chấm phân cách nghìn)
+            let rawPrice = form.find("input[name='SalePrice']").val() || "0";
+            let cleanPrice = rawPrice.toString().replace(/\./g, '').replace(/,/g, '');
 
-            let cleanPrice = parseFloat(
-                rawPrice.toString().replace(/\./g, '').replace(/,/g, '')
-            ) || 0;
-
-            // Validate
-            if (cleanPrice < 0) {
-                showToast("❌ Giá không được âm!", true);
-                return false;
-            }
-
-            // =============================
-            // CHUẨN BỊ DATA
-            // =============================
             let formData = form.serializeArray();
-
             $.each(formData, function (i, field) {
-                if (field.name === "SalePrice") {
-                    field.value = cleanPrice;
-                }
+                if (field.name === "SalePrice") field.value = cleanPrice;
             });
 
-            // =============================
-            // HIỆN LOADING (OPTIONAL)
-            // =============================
-            let btn = form.find("button[type='submit']");
             btn.prop("disabled", true).text("Đang xử lý...");
 
-            // =============================
-            // AJAX
-            // =============================
             $.ajax({
-                url: actionUrl,
-                type: methodType,
+                url: form.attr("action"),
+                type: "POST",
                 data: $.param(formData),
-
                 success: function (res) {
-
-                    // =============================
-                    // TRƯỜNG HỢP JSON
-                    // =============================
-                    if (res && typeof res === "object" && res.success !== undefined) {
-
-                        if (res.success === true) {
-                            showToast("✅ Cập nhật thành công!");
-
-                            if (form.attr("id") === "formUpdateOrderDetail") {
-                                setTimeout(() => location.reload(), 800);
-                            } else {
-                                $("#dialogModal").modal("hide");
-                            }
+                    if (isDBUpdate) {
+                        // Trường hợp sửa Chi tiết đơn hàng trong DB
+                        if (typeof res === "object" && res.success) {
+                            showToast("✅ Cập nhật Database thành công!");
+                            $("#dialogModal").modal("hide");
+                            // Đợi 1 chút rồi reload để cập nhật lại tổng tiền trên giao diện chính
+                            setTimeout(() => { location.reload(); }, 600);
                         } else {
-                            showToast("❌ " + (res.message || "Cập nhật thất bại"), true);
+                            showToast("❌ " + (res.message || "Lỗi cập nhật"), true);
                         }
-                    }
-
-                    // =============================
-                    // TRƯỜNG HỢP HTML (GIỎ HÀNG)
-                    // =============================
-                    else if (typeof res === "string") {
+                    } else {
+                        // Trường hợp đang lập đơn hàng (Sửa giỏ hàng tạm)
                         $("#showCart").html(res);
                         $("#dialogModal").modal("hide");
-                        showToast("✅ Cập nhật thành công!");
-                    }
-
-                    // =============================
-                    // KHÔNG XÁC ĐỊNH
-                    // =============================
-                    else {
-                        showToast("❌ Phản hồi không hợp lệ!", true);
+                        showToast("✅ Đã cập nhật giỏ hàng!");
                     }
                 },
-
                 error: function () {
-                    showToast("❌ Lỗi kết nối server!", true);
+                    showToast("❌ Lỗi kết nối Server!", true);
                 },
-
                 complete: function () {
                     btn.prop("disabled", false).text("Cập nhật");
                 }
@@ -198,34 +152,5 @@
 
             return false;
         });
-
-
-        // =============================
-        // TOAST THÔNG BÁO
-        // =============================
-        function showToast(message, isError) {
-
-            let bg = isError ? "bg-danger" : "bg-success";
-
-            let toast = $(`
-                <div class="toast align-items-center text-white ${bg} border-0 position-fixed top-0 end-0 m-3"
-                     role="alert" style="z-index:9999;">
-                    <div class="d-flex">
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>
-                </div>
-            `);
-
-            $("body").append(toast);
-
-            let bsToast = new bootstrap.Toast(toast[0], { delay: 2000 });
-            bsToast.show();
-
-            toast.on("hidden.bs.toast", function () {
-                toast.remove();
-            });
-        }
-
-    })();
+    })(jQuery);
 </script>
