@@ -1,0 +1,270 @@
+﻿@model SV22T1020811.Models.Sales.OrderDetailModel
+@{
+    Layout = null;
+    int stt = 1;
+    decimal total = 0;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa đơn #@Model.Order.OrderID</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Thiết lập khổ giấy A4 không lề cho Rotativa */
+        @@media print {
+            @@page {
+                size: A4;
+                margin: 0;
+            }
+            body { margin: 0; }
+        }
+
+        :root {
+            --primary: #000000;
+            --secondary: #0058be;
+            --outline: #c6c6cd;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff; /* Đổi sang trắng hoàn toàn */
+            margin: 0;
+            padding: 0;
+            color: #191c1e;
+            font-size: 14px;
+        }
+
+        .document-page {
+            background: #fff;
+            width: 100%; /* Tràn hết chiều ngang */
+            min-height: 297mm; /* Chiều cao chuẩn A4 */
+            margin: 0;
+            padding: 20mm; /* Giữ lề nội dung 20mm để không bị mất chữ khi in */
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Thanh màu xanh sát mép trên cùng */
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: #0058be;
+        }
+
+        .header-table {
+            width: 100%;
+            margin-top: 10mm;
+            margin-bottom: 32px;
+            border-collapse: collapse;
+        }
+
+        .h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0 0 8px 0;
+        }
+
+        .ref-id {
+            background: rgba(216, 226, 255, 0.6);
+            color: #004395;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(198, 198, 205, 0.4);
+            margin-bottom: 32px;
+            width: 100%;
+        }
+
+        .info-grid {
+            width: 100%;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+        }
+
+        .label-sm {
+            font-size: 11px;
+            font-weight: 600;
+            color: #45464d;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .value-text {
+            font-size: 15px;
+            color: #191c1e;
+            line-height: 1.6;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .items-table th {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 2px solid #000;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .items-table td {
+            padding: 18px 10px;
+            border-bottom: 1px solid #eceef0;
+        }
+
+        .total-table {
+            width: 320px;
+            margin-left: auto;
+            border-collapse: collapse;
+        }
+
+        .total-table td {
+            padding: 10px 0;
+        }
+
+        .grand-total {
+            border-top: 2px solid #000;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .signature-grid {
+            width: 100%;
+            margin-top: 60px;
+            border-top: 1px solid #eceef0;
+            padding-top: 30px;
+            border-collapse: collapse;
+        }
+
+        .signature-line {
+            width: 100%;
+            height: 80px;
+            border-bottom: 1px solid #c6c6cd;
+            background: #f9f9fb;
+            margin-bottom: 10px;
+        }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="document-page">
+        <div class="progress-bar"></div>
+
+        <table class="header-table">
+            <tr>
+                <td>
+                    <h1 class="h1">Hóa Đơn Bán Hàng</h1>
+                    <div class="ref-id">MÃ ĐƠN: #@Model.Order.OrderID</div>
+                </td>
+                <td class="text-right">
+                    <div style="font-weight: 700; font-size: 24px; letter-spacing: -1px; color: #000;">SATA STEEL</div>
+                    <div style="font-size: 13px; color: #45464d;">Hệ thống quản lý trực tuyến</div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <table class="info-grid">
+            <tr>
+                <td style="width: 55%; vertical-align: top;">
+                    <div class="label-sm">KHÁCH HÀNG</div>
+                    <div class="value-text">
+                        <strong>@Model.Order.CustomerName</strong><br />
+                        @Model.Order.CustomerAddress<br />
+                        @Model.Order.CustomerPhone
+                    </div>
+                </td>
+                <td style="width: 45%; vertical-align: top;">
+                    <div class="label-sm">THÔNG TIN GIAO DỊCH</div>
+                    <div class="value-text">
+                        Ngày lập: @Model.Order.OrderTime.ToString("dd/MM/yyyy")<br />
+                        Nhân viên: @Model.Order.EmployeeName<br />
+                        Trạng thái: <strong>@Model.Order.Status.GetDescription()</strong>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Danh mục hàng hóa</div>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;" class="text-center">STT</th>
+                    <th>Tên sản phẩm / Quy cách</th>
+                    <th style="width: 80px;" class="text-center">ĐVT</th>
+                    <th style="width: 80px;" class="text-center">SL</th>
+                    <th style="width: 130px;" class="text-right">Đơn giá</th>
+                    <th style="width: 150px;" class="text-right">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Details)
+                {
+                    var thanhTien = item.Quantity * item.SalePrice;
+                    total += thanhTien;
+                    <tr>
+                        <td class="text-center">@(stt++)</td>
+                        <td><strong>@item.ProductName</strong></td>
+                        <td class="text-center">@item.Unit</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-right">@item.SalePrice.ToString("N0")</td>
+                        <td class="text-right"><strong>@thanhTien.ToString("N0")</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <table class="total-table">
+            <tr>
+                <td class="label-sm">TỔNG CHƯA THUẾ</td>
+                <td class="text-right">@total.ToString("N0")</td>
+            </tr>
+            <tr>
+                <td class="label-sm">THUẾ VAT (0%)</td>
+                <td class="text-right">0</td>
+            </tr>
+            <tr class="grand-total">
+                <td style="padding-top: 15px;">TỔNG CỘNG</td>
+                <td class="text-right" style="padding-top: 15px; color: #0058be;">@total.ToString("N0") VNĐ</td>
+            </tr>
+        </table>
+
+        <table class="signature-grid">
+            <tr>
+                <td style="width: 60%; padding-right: 50px;">
+                    <div class="label-sm">CHỮ KÝ KHÁCH HÀNG</div>
+                    <div class="signature-line"></div>
+                    <div style="font-size: 11px; color: #76777d; font-style: italic;">Xác nhận đã nhận đủ hàng và đúng quy cách.</div>
+                </td>
+                <td style="width: 40%;">
+                    <div class="label-sm">THỜI GIAN XUẤT</div>
+                    <div class="value-text" style="border-bottom: 1px solid #eceef0; padding-bottom: 5px;">
+                        @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                    <div class="label-sm" style="margin-top: 20px;">NGƯỜI LẬP BIỂU</div>
+                    <div class="value-text"><strong>@Model.Order.EmployeeName</strong></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
