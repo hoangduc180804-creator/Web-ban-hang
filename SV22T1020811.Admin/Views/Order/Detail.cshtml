@@ -5,67 +5,65 @@
 }
 
 @section PageToolBar {
-    <div class="btn-group">
-        <button type="button"
-                class="btn btn-primary dropdown-toggle"
-                data-bs-toggle="dropdown">
-            <i class="bi bi-gear me-1"></i>
-            Xử lý đơn hàng
-        </button>
-        <ul class="dropdown-menu">
-            @* Duyệt đơn hàng: Chỉ sáng khi đơn hàng là New (1) *@
-            <li>
-                <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.New ? "" : "disabled text-muted")"
-                   href="~/Order/Accept/@Model.Order.OrderID">Duyệt đơn hàng</a>
-            </li>
+    <div class="d-flex flex-wrap align-items-center gap-2 justify-content-end">
+        <a href="~/Order" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
 
-            @* Chuyển giao hàng: Chỉ sáng khi đơn hàng là Accepted (2) *@
-            <li>
-                <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.Accepted ? "" : "disabled text-muted")"
-                   href="~/Order/Shipping/@Model.Order.OrderID">Chuyển giao hàng</a>
-            </li>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary shadow-sm dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-lightning-charge-fill me-1"></i> Xử lý nghiệp vụ
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                <li>
+                    <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.New ? "" : "disabled text-muted")"
+                       href="~/Order/Accept/@Model.Order.OrderID">
+                        <i class="bi bi-check2-circle me-2 text-success"></i> Duyệt đơn hàng
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.Accepted ? "" : "disabled text-muted")"
+                       href="~/Order/Shipping/@Model.Order.OrderID">
+                        <i class="bi bi-truck me-2 text-primary"></i> Chuyển giao hàng
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.Shipping ? "" : "disabled text-muted")"
+                       href="~/Order/Finish/@Model.Order.OrderID">
+                        <i class="bi bi-flag-fill me-2 text-info"></i> Hoàn tất đơn hàng
+                    </a>
+                </li>
 
-            @* Hoàn tất đơn hàng: Chỉ sáng khi đơn hàng là Shipping (3) *@
-            <li>
-                <a class="dropdown-item open-modal @(Model.Order.Status == OrderStatusEnum.Shipping ? "" : "disabled text-muted")"
-                   href="~/Order/Finish/@Model.Order.OrderID">Hoàn tất đơn hàng</a>
-            </li>
+                <li><hr class="dropdown-divider"></li>
 
-            <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger open-modal @(Model.Order.Status == OrderStatusEnum.Completed || Model.Order.Status == OrderStatusEnum.Rejected ? "disabled text-muted" : "")"
+                       href="~/Order/Cancel/@Model.Order.OrderID">
+                        <i class="bi bi-x-circle me-2"></i> Hủy đơn hàng
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item text-danger open-modal @(Model.Order.Status == OrderStatusEnum.New ? "" : "disabled text-muted")"
+                       href="~/Order/Reject/@Model.Order.OrderID">
+                        <i class="bi bi-slash-circle me-2"></i> Từ chối đơn hàng
+                    </a>
+                </li>
+            </ul>
+        </div>
 
-            @* Hủy đơn hàng: Sáng khi chưa hoàn tất/từ chối (New, Accepted, Shipping) *@
-            <li>
-                <a class="dropdown-item text-danger open-modal @(Model.Order.Status == OrderStatusEnum.Completed || Model.Order.Status == OrderStatusEnum.Rejected ? "disabled text-muted" : "")"
-                   href="~/Order/Cancel/@Model.Order.OrderID">Hủy đơn hàng</a>
-            </li>
+        <a href="~/Order/ExportToPdf/@Model.Order.OrderID" class="btn btn-danger shadow-sm" target="_blank">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Xuất PDF
+        </a>
 
-            @* Từ chối đơn hàng: Chỉ sáng khi đơn hàng là New (1) *@
-            <li>
-                <a class="dropdown-item text-danger open-modal @(Model.Order.Status == OrderStatusEnum.New ? "" : "disabled text-muted")"
-                   href="~/Order/Reject/@Model.Order.OrderID">Từ chối đơn hàng</a>
-            </li>
-        </ul>
+        <a href="~/Order/ExportToExcel/@Model.Order.OrderID" class="btn btn-success shadow-sm">
+            <i class="bi bi-file-earmark-excel-fill"></i> Xuất Excel
+        </a>
+
+        <a href="~/Order/Delete/@Model.Order.OrderID"
+           class="btn btn-outline-danger shadow-sm open-modal @(Model.Order.Status == OrderStatusEnum.New || Model.Order.Status == OrderStatusEnum.Cancelled || Model.Order.Status == OrderStatusEnum.Rejected ? "" : "disabled")">
+            <i class="bi bi-trash"></i> Xóa
+        </a>
     </div>
-
-    @* Nút Xóa: Chỉ cho phép xóa khi đơn hàng ở trạng thái đóng hoặc mới lập *@
-    <a href="~/Order/Delete/@Model.Order.OrderID"
-       class="btn btn-danger ms-1 open-modal @(Model.Order.Status == OrderStatusEnum.New || Model.Order.Status == OrderStatusEnum.Cancelled || Model.Order.Status == OrderStatusEnum.Rejected ? "" : "disabled")">
-        <i class="bi bi-trash"></i>
-        Xóa
-    </a>
-
-    <a href="~/Order/ExportToPdf/@Model.Order.OrderID" class="btn btn-info ms-1" target="_blank">
-        <i class="bi bi-file-earmark-pdf"></i> Xuất file PDF
-    </a>
-
-    <a href="~/Order/ExportToExcel/@Model.Order.OrderID" class="btn btn-success">
-        <i class="fa fa-file-excel"></i> Xuất file Excel
-    </a>
-
-    <a href="~/Order" class="btn btn-secondary ms-1">
-        <i class="bi bi-arrow-left"></i>
-        Quay lại
-    </a>
 }
 
 @if (TempData["Message"] != null)

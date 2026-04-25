@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
-using ClosedXML.Excel;
-using System.IO;
-using System.Linq;
 using SV22T1020811.BusinessLayers;
 using SV22T1020811.Models.Common;
 using SV22T1020811.Models.Sales;
+using Svg; // Cần cài NuGet: Svg
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
 
 namespace SV22T1020811.Admin.Controllers
@@ -55,7 +57,6 @@ namespace SV22T1020811.Admin.Controllers
             };
         }
 
-        // Lấy dữ liệu và xuất đơn hàng ra Excel bằng ClosedXML
         public async Task<IActionResult> ExportToExcel(int id)
         {
             var order = await SalesDataService.GetOrderAsync(id);
@@ -64,127 +65,254 @@ namespace SV22T1020811.Admin.Controllers
 
             using (var workbook = new XLWorkbook())
             {
-                var ws = workbook.Worksheets.Add("Hóa Đơn SATA");
+                var ws = workbook.Worksheets.Add("Hóa Đơn");
 
-                // --- 1. BIẾN EXCEL THÀNH MỘT TỜ GIẤY TRẮNG (CỰC KỲ QUAN TRỌNG) ---
-                ws.Cells("A1:Z100").Style.Fill.BackgroundColor = XLColor.White; // Ẩn hoàn toàn các đường kẻ ô của Excel
-                ws.Style.Font.FontName = "Segoe UI";
-                ws.Style.Font.FontSize = 10;
+                // --- 1. SETUP KHÔNG GIAN ---
+                ws.ShowGridLines = false;
+                ws.PageSetup.CenterHorizontally = true;
+                ws.Cells("A1:Z200").Style.Fill.BackgroundColor = XLColor.FromHtml("#E5E7EB");
+                ws.Range("A1:H200").Style.Fill.BackgroundColor = XLColor.White;
 
-                // Cấu hình độ rộng cột cố định để tạo layout chuẩn
-                ws.Column(1).Width = 5;   // STT
-                ws.Column(2).Width = 45;  // Tên sản phẩm
-                ws.Column(3).Width = 12;  // ĐVT
-                ws.Column(4).Width = 12;  // SL
-                ws.Column(5).Width = 18;  // Đơn giá
-                ws.Column(6).Width = 20;  // Thành tiền
+                // Cấu hình độ rộng cột
+                ws.Column(1).Width = 5;   // Đệm trái
+                ws.Column(2).Width = 7;   // CỘT B: Chừa chỗ cho LOGO
+                ws.Column(3).Width = 43;  // CỘT C: Tên SP (giảm lại chút để bù cho cột B)
+                ws.Column(4).Width = 10;
+                ws.Column(5).Width = 12;
+                ws.Column(6).Width = 18;
+                ws.Column(7).Width = 20;
+                ws.Column(8).Width = 5;   // Đệm phải
 
-                // --- 2. BANNER TRÊN CÙNG (Dạng dải màu) ---
-                var banner = ws.Range("A1:F3");
-                banner.Merge().Style.Fill.BackgroundColor = XLColor.FromHtml("#1B2631"); // Màu xanh đen Carbon
+                // --- 2. HEADER SECTION ---
+                var headerBg = ws.Range("A1:H4"); // Tăng độ cao header lên dòng 4
+                headerBg.Style.Fill.BackgroundColor = XLColor.FromHtml("#f2f3f5");
 
-                var companyName = ws.Cell("A1");
-                companyName.Value = "DUC SHOP CORPORATION";
-                companyName.Style.Font.FontColor = XLColor.White;
-                companyName.Style.Font.Bold = true;
-                companyName.Style.Font.FontSize = 22;
-                companyName.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                companyName.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                // --- CHÈN LOGO SVG (MỚI) ---
+                string svgContent = @"<svg width='55' height='55' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <rect x='20' y='45' width='40' height='35' stroke='#2a3d66' stroke-width='5' fill='none'/>
+            <rect x='50' y='20' width='30' height='30' stroke='#2a3d66' stroke-width='5' fill='none'/>
+            <line x1='10' y1='80' x2='90' y2='80' stroke='#2a3d66' stroke-width='5'/>
+        </svg>";
 
-                // --- 3. THÔNG TIN HÓA ĐƠN (Layout 2 cột) ---
-                ws.Cell("A5").Value = "HÓA ĐƠN CHI TIẾT";
-                ws.Cell("A5").Style.Font.FontSize = 16;
-                ws.Cell("A5").Style.Font.Bold = true;
-                ws.Cell("A5").Style.Font.FontColor = XLColor.FromHtml("#1B2631");
+                try
+                {
+                    var svgDocument = SvgDocument.FromSvg<SvgDocument>(svgContent);
+                    using (var bitmap = svgDocument.Draw())
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            bitmap.Save(ms, ImageFormat.Png);
+                            var picture = ws.AddPicture(ms)
+                                            .MoveTo(ws.Cell("B2")) // Đặt logo tại ô B2
+                                            .WithSize(45, 45);     // Chỉnh kích thước vừa vặn
+                        }
+                    }
+                }
+                catch { /* Xử lý nếu không có thư viện Svg */ }
 
-                // Cột trái: Khách hàng
-                ws.Cell("A7").Value = "KHÁCH HÀNG:";
-                ws.Cell("A7").Style.Font.Bold = true;
-                ws.Cell("A8").Value = order.CustomerName;
-                ws.Cell("A9").Value = order.CustomerAddress;
-                ws.Cell("A10").Value = order.CustomerPhone;
+                // Tên thương hiệu (Dịch sang cột C để không đè lên Logo)
+                var brandCell = ws.Cell("C2");
+                brandCell.Value = "DUC STEEL";
+                brandCell.Style.Font.FontColor = XLColor.FromHtml("#2a3d66");
+                brandCell.Style.Font.Bold = true;
+                brandCell.Style.Font.FontSize = 20;
+                brandCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                // Cột phải: Thông tin đơn
-                ws.Cell("E7").Value = "SỐ ĐƠN HÀNG:";
-                ws.Cell("F7").Value = $"#{order.OrderID:D6}";
-                ws.Cell("E8").Value = "NGÀY LẬP:";
-                ws.Cell("F8").Value = order.OrderTime.ToString("dd/MM/yyyy");
-                ws.Cell("E9").Value = "NHÂN VIÊN:";
-                ws.Cell("F9").Value = order.EmployeeName;
-                ws.Range("E7:E9").Style.Font.Bold = true;
-                ws.Range("F7:F9").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                var webCell = ws.Cell("G2");
+                webCell.Value = "Hệ thống quản lý trực tuyến";
+                webCell.Style.Font.FontColor = XLColor.FromHtml("#2a3d66");
+                webCell.Style.Font.Bold = true;
+                webCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                webCell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
-                // --- 4. BẢNG DỮ LIỆU "FLOAT" (Tạo hiệu ứng nổi) ---
-                int headerRow = 12;
-                var headerRange = ws.Range(headerRow, 1, headerRow, 6);
-                headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#2E86C1"); // Màu xanh Steel Blue
-                headerRange.Style.Font.FontColor = XLColor.White;
-                headerRange.Style.Font.Bold = true;
-                headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                // --- 3. THÔNG TIN KHÁCH HÀNG (Giữ nguyên logic cũ nhưng dịch cột) ---
+                ws.Cell("B6").Value = $"TÊN: {order.CustomerName.ToUpper()}";
+                ws.Cell("B6").Style.Font.Bold = true;
+                ws.Cell("B6").Style.Font.FontSize = 13;
+                ws.Cell("B6").Style.Font.FontColor = XLColor.FromHtml("#2a3d66");
 
-                string[] headers = { "STT", "MÔ TẢ SẢN PHẨM", "ĐVT", "SỐ LƯỢNG", "ĐƠN GIÁ", "THÀNH TIỀN" };
-                for (int i = 0; i < headers.Length; i++) ws.Cell(headerRow, i + 1).Value = headers[i];
+                ws.Cell("B7").Value = $"SĐT: {order.CustomerPhone}";
+                ws.Cell("B8").Value = order.CustomerAddress;
 
-                // Tăng độ cao của dòng tiêu đề để "dễ thở"
-                ws.Row(headerRow).Height = 25;
+                var invoiceTitle = ws.Cell("G6");
+                invoiceTitle.Value = "HÓA ĐƠN";
+                invoiceTitle.Style.Font.Bold = true;
+                invoiceTitle.Style.Font.FontSize = 26;
+                invoiceTitle.Style.Font.FontColor = XLColor.FromHtml("#d15c42");
+                invoiceTitle.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                ws.Cell("G7").Value = $"Hóa đơn #{order.OrderID:D6}";
+                ws.Cell("G7").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                ws.Cell("G8").Value = $"Ngày {order.OrderTime:dd/MM/yyyy}";
+                ws.Cell("G8").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                // --- 4. BẢNG DỮ LIỆU (Phong cách Minimalist) ---
+                int headerRow = 10; // Chỉnh lại dòng 10 cho sát với mẫu
+                var tableHeader = ws.Range(headerRow, 2, headerRow, 7);
+                tableHeader.Style.Font.Bold = true;
+                tableHeader.Style.Font.FontSize = 12;
+                tableHeader.Style.Font.FontColor = XLColor.Black;
+
+                // Chỉ sử dụng đường kẻ ngang thanh mảnh phía trên và dưới tiêu đề
+                tableHeader.Style.Border.TopBorder = XLBorderStyleValues.Medium;
+                tableHeader.Style.Border.TopBorderColor = XLColor.Black;
+                tableHeader.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                tableHeader.Style.Border.BottomBorderColor = XLColor.Black;
+
+                // Căn lề tiêu đề cho khớp với dữ liệu bên dưới
+                ws.Cell(headerRow, 2).Value = "Mục";
+                ws.Cell(headerRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                ws.Cell(headerRow, 3).Value = "Tên sản phẩm";
+                ws.Cell(headerRow, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+
+                ws.Cell(headerRow, 4).Value = "ĐVT";
+                ws.Cell(headerRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                ws.Cell(headerRow, 5).Value = "Số lượng";
+                ws.Cell(headerRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                ws.Cell(headerRow, 6).Value = "Đơn giá";
+                ws.Cell(headerRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                ws.Cell(headerRow, 7).Value = "Thành tiền";
+                ws.Cell(headerRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+                // Tăng chiều cao dòng tiêu đề
+                ws.Row(headerRow).Height = 33;
+                tableHeader.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
 
                 int currentRow = headerRow + 1;
+                decimal totalAmount = 0;
+                int stt = 1;
+
                 foreach (var item in details)
                 {
-                    ws.Row(currentRow).Height = 22; // Padding cho dòng dữ liệu
-                    ws.Cell(currentRow, 1).Value = currentRow - headerRow;
-                    ws.Cell(currentRow, 2).Value = item.ProductName;
-                    ws.Cell(currentRow, 3).Value = item.Unit;
-                    ws.Cell(currentRow, 4).Value = item.Quantity;
-                    ws.Cell(currentRow, 5).Value = item.SalePrice;
-                    ws.Cell(currentRow, 6).Value = item.Quantity * item.SalePrice;
+                    var rowRange = ws.Range(currentRow, 2, currentRow, 7);
 
-                    // Định dạng số
-                    ws.Cell(currentRow, 5).Style.NumberFormat.Format = "#,##0";
-                    ws.Cell(currentRow, 6).Style.NumberFormat.Format = "#,##0";
+                    // Đường kẻ ngang mờ giữa các dòng sản phẩm
+                    rowRange.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+                    rowRange.Style.Border.BottomBorderColor = XLColor.FromHtml("#EAEAEA");
 
-                    // Kẻ đường kẻ ngang mờ (Dạng Border Bottom duy nhất)
-                    ws.Range(currentRow, 1, currentRow, 6).Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                    ws.Range(currentRow, 1, currentRow, 6).Style.Border.BottomBorderColor = XLColor.LightGray;
+                    // Tăng chiều cao dòng cực rộng để giống mẫu ảnh 2
+                    ws.Row(currentRow).Height = 30;
+                    rowRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    rowRange.Style.Font.FontColor = XLColor.FromHtml("#4A4A4A"); // Màu chữ xám đậm tinh tế
+
+                    decimal thanhTien = item.Quantity * item.SalePrice;
+                    totalAmount += thanhTien;
+
+                    // Cột 2: Mục (Căn giữa)
+                    ws.Cell(currentRow, 2).Value = stt++;
+                    ws.Cell(currentRow, 2).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    // Cột 3: Tên sản phẩm (Căn trái + Thêm khoảng trống lề)
+                    ws.Cell(currentRow, 3).Value = item.ProductName;
+                    ws.Cell(currentRow, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    ws.Cell(currentRow, 3).Style.Alignment.Indent = 1;
+
+                    // Cột 4: ĐVT (Căn giữa)
+                    ws.Cell(currentRow, 4).Value = item.Unit;
+                    ws.Cell(currentRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    // Cột 5: Số lượng (Căn giữa)
+                    ws.Cell(currentRow, 5).Value = item.Quantity;
+                    ws.Cell(currentRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    // Cột 6: Đơn giá (Căn phải)
+                    ws.Cell(currentRow, 6).Value = item.SalePrice;
+                    ws.Cell(currentRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    ws.Cell(currentRow, 6).Style.NumberFormat.Format = "#,##0\"đ\"";
+
+                    // Cột 7: Thành tiền (Căn phải)
+                    ws.Cell(currentRow, 7).Value = thanhTien;
+                    ws.Cell(currentRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    ws.Cell(currentRow, 7).Style.NumberFormat.Format = "#,##0\"đ\"";
 
                     currentRow++;
                 }
+                // --- 5. TỔNG TIỀN ---
+                decimal tax = totalAmount * 0.1m;
+                decimal grandTotal = totalAmount + tax;
 
-                // --- 5. KHU VỰC TỔNG TIỀN (BOX SUMMARY) ---
                 currentRow += 1;
-                var summaryBox = ws.Range(currentRow, 4, currentRow + 2, 6);
-                summaryBox.Style.Fill.BackgroundColor = XLColor.FromHtml("#F8F9F9");
-                summaryBox.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                summaryBox.Style.Border.OutsideBorderColor = XLColor.LightGray;
+                ws.Cell(currentRow, 6).Value = "Tổng cộng:";
+                ws.Cell(currentRow, 7).Value = totalAmount;
+                ws.Cell(currentRow, 7).Style.NumberFormat.Format = "#,##0\"đ\"";
 
-                ws.Cell(currentRow, 4).Value = "Tổng tiền hàng:";
-                ws.Cell(currentRow, 6).Value = details.Sum(x => x.Quantity * x.SalePrice);
+                currentRow += 1;
+                ws.Cell(currentRow, 6).Value = "Thuế (10%):";
+                ws.Cell(currentRow, 7).Value = tax;
+                ws.Cell(currentRow, 7).Style.NumberFormat.Format = "#,##0\"đ\"";
 
-                ws.Cell(currentRow + 1, 4).Value = "Thuế VAT (0%):";
-                ws.Cell(currentRow + 1, 6).Value = 0;
+                currentRow += 1;
+                ws.Cell(currentRow, 6).Value = "TỔNG TIỀN:";
+                ws.Cell(currentRow, 6).Style.Font.Bold = true;
+                ws.Cell(currentRow, 7).Value = grandTotal;
+                ws.Cell(currentRow, 7).Style.Font.Bold = true;
+                ws.Cell(currentRow, 7).Style.NumberFormat.Format = "#,##0\"Đ\"";
+                ws.Range(currentRow, 6, currentRow, 7).Style.Border.TopBorder = XLBorderStyleValues.Thin;
 
-                var finalRow = currentRow + 2;
-                ws.Cell(finalRow, 4).Value = "TỔNG THANH TOÁN:";
-                ws.Cell(finalRow, 4).Style.Font.Bold = true;
-                ws.Cell(finalRow, 6).Value = details.Sum(x => x.Quantity * x.SalePrice);
-                ws.Cell(finalRow, 6).Style.Font.Bold = true;
-                ws.Cell(finalRow, 6).Style.Font.FontSize = 13;
-                ws.Cell(finalRow, 6).Style.Font.FontColor = XLColor.FromHtml("#CB4335"); // Màu đỏ đậm chuyên nghiệp
+                // --- 6. FOOTER SECTION ---
+                currentRow += 3;
 
-                ws.Range(currentRow, 6, finalRow, 6).Style.NumberFormat.Format = "#,##0 \" VNĐ\"";
-                ws.Range(currentRow, 6, finalRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                // Vẽ vạch dọc màu cam tạo điểm nhấn
+                var footerLine = ws.Range(currentRow, 2, currentRow + 3, 2);
+                footerLine.Style.Border.LeftBorder = XLBorderStyleValues.Thick;
+                footerLine.Style.Border.LeftBorderColor = XLColor.FromHtml("#d15c42");
 
-                // --- 6. FOOTER & LỜI CẢM ƠN ---
-                currentRow += 4;
-                var footerCell = ws.Cell(currentRow, 1);
-                footerCell.Value = "Cảm ơn quý khách đã tin tưởng lựa chọn sản phẩm !";
-                footerCell.Style.Font.Italic = true;
-                ws.Range(currentRow, 1, currentRow, 6).Merge().Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                // Cột trái: Thông tin giao dịch
+                ws.Cell(currentRow, 2).Value = "    THÔNG TIN GIAO DỊCH";
+                ws.Cell(currentRow, 2).Style.Font.Bold = true;
+                ws.Cell(currentRow, 2).Style.Font.FontColor = XLColor.FromHtml("#2a3d66");
+
+                ws.Cell(currentRow + 1, 2).Value = $"    Nhân viên lập: {order.EmployeeName}";
+
+                // Ánh xạ trạng thái từ Enum sang Tiếng Việt theo yêu cầu của bạn
+                string statusText = order.Status switch
+                {
+                    OrderStatusEnum.Rejected => "bị từ chối",
+                    OrderStatusEnum.Cancelled => "đã bị hủy",
+                    OrderStatusEnum.New => "vừa tạo",
+                    OrderStatusEnum.Accepted => "đang duyệt",
+                    OrderStatusEnum.Shipping => "đang vận chuyển",
+                    OrderStatusEnum.Completed => "đã hoàn tất",
+                    _ => "Không xác định"
+                };
+                ws.Cell(currentRow + 2, 2).Value = $"    Trạng thái đơn: {statusText}";
+
+                ws.Cell(currentRow + 3, 2).Value = $"    Ngày in: {DateTime.Now:dd/MM/yyyy HH:mm}";
+
+                // Đảm bảo các dòng này được căn giữa theo chiều dọc so với vạch cam
+                ws.Range(currentRow, 2, currentRow + 3, 2).Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+                // Cột phải: Khối xác nhận của khách hàng
+                var customerConfirmHeader = ws.Range(currentRow, 6, currentRow, 7).Merge();
+                customerConfirmHeader.Value = "XÁC NHẬN CỦA KHÁCH HÀNG";
+                customerConfirmHeader.Style.Font.Bold = true;
+                customerConfirmHeader.Style.Font.FontColor = XLColor.FromHtml("#2a3d66"); // Đã sửa màu đúng ô
+                customerConfirmHeader.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                // Dòng hướng dẫn ký tên
+                var signatureInstruction = ws.Range(currentRow + 3, 6, currentRow + 3, 7).Merge();
+                signatureInstruction.Value = "(Ký và ghi rõ họ tên)";
+                signatureInstruction.Style.Font.Italic = true; // Cho in nghiêng cho đúng phong cách hóa đơn
+                signatureInstruction.Style.Font.FontSize = 10; // Giảm nhẹ font size một chút cho tinh tế
+                signatureInstruction.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center; // Căn giữa theo tiêu đề trên
+
+                // --- 7. ĐÓNG KHUNG CAM DÀY ---
+                int lastRow = currentRow + 5;
+                if (lastRow < 200) ws.Range(lastRow + 1, 1, 200, 8).Style.Fill.BackgroundColor = XLColor.FromHtml("#E5E7EB");
+
+                var a4Page = ws.Range(1, 1, lastRow, 8);
+                a4Page.Style.Border.OutsideBorder = XLBorderStyleValues.Thick;
+                a4Page.Style.Border.OutsideBorderColor = XLColor.FromHtml("#d15c42");
 
                 using (var stream = new MemoryStream())
                 {
                     workbook.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"DUC_Invoice_{id}.xlsx");
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"DUC_STEEL_Invoice_{id}.xlsx");
                 }
             }
         }
