@@ -148,7 +148,7 @@ namespace SV22T1020811.Admin.Controllers
         {
             var customer = await PartnerDataService.GetCustomerAsync(id);
             if (customer == null)
-                return RedirectToAction("Index"); // Nếu không tồn tại, quay về danh sách
+                return RedirectToAction("Index"); 
 
             return View(customer); // Truyền thông tin khách hàng để hiển thị trên view
         }
@@ -171,7 +171,7 @@ namespace SV22T1020811.Admin.Controllers
                 TempData["ErrorMessage"] = "Xóa khách hàng thất bại!";
             }
 
-            return RedirectToAction("Index"); // Quay lại danh sách sau khi xóa
+            return RedirectToAction("Index"); 
         }
 
         /// <summary>
