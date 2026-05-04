@@ -56,6 +56,7 @@ Dự án được tổ chức theo mô hình phân lớp chuyên nghiệp, tách
 - **Giao diện Hiện đại:** Thiết kế theo phong cách **Glassmorphism** (kính mờ), responsive hoàn toàn trên di động.
 - **Giỏ hàng (Cart):** Xử lý giỏ hàng qua Session, cho phép tăng giảm số lượng linh hoạt bằng AJAX.
 - **Đặt hàng:** Quy trình Checkout nhanh chóng, thông báo Toast báo hiệu trạng thái thời gian thực.
+- **Trạng thái đơn hàng:** trạng thái đơn hàng được cập nhật theo đúng trạng thái 
 
 ---
 
